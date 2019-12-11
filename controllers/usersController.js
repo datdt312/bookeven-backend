@@ -5,7 +5,7 @@ const bcrypt = require('bcrypt');
 const jwt = require('jsonwebtoken');
 const config = require('../helpers/config');
 
-router.post('/register', (req, res) => {
+router.post('/signup', (req, res) => {
 
     const body = req.body;
     //console.dir(body);
@@ -40,12 +40,12 @@ router.post('/login', (req, res) => {
     console.dir(body);
 
 
-    database.query(`SELECT * FROM users WHERE Email = ?`, [body.email], (err, rows, feilds) => {
+    database.query(`SELECT * FROM users WHERE email = ?`, [body.email], (err, rows, feilds) => {
         if (!err) {
             if (rows.length > 0) {
                 var info = rows[0];
                 console.dir(info);
-                const match = bcrypt.compareSync(body.password, info.Password);
+                const match = bcrypt.compareSync(body.password, info.password);
                 console.log(match);
 
                 if (match) {
@@ -53,8 +53,17 @@ router.post('/login', (req, res) => {
                     var payload = { email: body.email };
                     var jwtToken = jwt.sign(payload, config.jwtSecret, { expiresIn: '30d' });
                     console.log('jwtToken: ' + jwtToken);
-                    var jsonResponse = { 'access_token': jwtToken, 'refresh_token': "xxxxx-xxx-xx-x" };
-                    res.json(jsonResponse);
+                    var jsonResponse = { 'access_token': jwtToken };
+                    var createdTime = new Date().getTime().toString();
+                    database.query('UPDATE users SET created_time_token = ? WHERE email = ?', [createdTime, body.email], (err, rows, feilds) => {
+                        if (!err) {
+                            res.json(jsonResponse);
+                        } else {
+                            console.log(err);
+                            res.json({ message: "Something went wrong!" });
+                        }
+                    });
+
                 } else {
                     res.json({ error: 'Email or password has been slain!' })
                 }
@@ -68,8 +77,14 @@ router.post('/login', (req, res) => {
             res.json({ message: "Something went wrong!" });
         }
     });
-
-
 });
 
+router.post('/logout', (req, res) => {
+    const body = req.body;
+
+    var payload = { email: body.email };
+    var jwtToken = jwt.sign(payload, config.jwtSecret, { expiresIn: '1' });
+
+    res.json({ message: "Logout successfully!" });
+});
 module.exports = router;
