@@ -4,7 +4,7 @@ var routes = require('./routes/routes');
 var logger = require('morgan');
 var app = express();
 
-const port = 1999;
+const port = process.env.PORT || 1999;
 
 app.use(logger('dev'));
 app.use(bodyParser.json());
