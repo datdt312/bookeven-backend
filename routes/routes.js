@@ -1,3 +1,5 @@
+const authController = require('../controllers/authController');
+
 const router = app => {
 
     app.get('/', (request, response) => {
@@ -6,8 +8,8 @@ const router = app => {
         });
     });
 
-    app.use('/apis', require('../controllers/usersController'));
-
+    app.use('/apis', require('./auth'));
+    app.use('/apis/user', require('./user'));
 }
 
 module.exports = router;
