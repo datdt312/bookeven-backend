@@ -10,6 +10,8 @@ const router = app => {
 
     app.use('/apis', require('./auth'));
     app.use('/apis/user', require('./user'));
+    app.use('/apis/bookfield', require('./bookfield'));
+    app.use('apis/address', require('./address'))
 }
 
 module.exports = router;
