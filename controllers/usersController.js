@@ -2,7 +2,7 @@ const database = require('../database/connection');
 
 exports.get_user_data = (req, res) => {
     try {
-        var body = req.body;
+        var body = req.query;
 
         database.query('SELECT id, email, fullname, phone, role FROM users WHERE id = ?', [body.id], (err, rows, fields) => {
             if (!err) {
