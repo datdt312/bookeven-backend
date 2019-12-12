@@ -11,7 +11,7 @@ exports.list = (req, res) => {
                     res.status(400).json({message: "Can't find any result"})
                 }
             } else {
-                res.status(400).json({message: "Can't query to the database, sorry"});
+                res.status(400).json({message: err});
             }
         })
 
