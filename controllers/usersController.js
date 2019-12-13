@@ -11,14 +11,14 @@ exports.get_user_data = (req, res) => {
 
                     res.status(200).json(info);
                 } else {
-                    res.status(400).json({ message: "Something went wrong!1" });
+                    res.status(400).json({ message: "Something went wrong!" });
                 }
             } else {
                 console.log(err);
-                res.status(400).json({ message: "Something went wrong!2" });
+                res.status(400).json({ message: "Something went wrong!" });
             }
         });
     } catch (e) {
-        res.status(400).json({ message: "Something went wrong!3", _error: e });
+        res.status(400).json({ message: "Something went wrong!", _error: e });
     }
 };
