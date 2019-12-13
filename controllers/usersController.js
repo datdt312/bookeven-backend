@@ -14,7 +14,7 @@ exports.get_user_data = (req, res) => {
                     res.status(400).json({ message: "Something went wrong!" });
                 }
             } else {
-                console.log(err);
+                console.dir(err);
                 res.status(400).json({ message: "Something went wrong!" });
             }
         });
