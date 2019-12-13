@@ -31,7 +31,8 @@ exports.signup = (req, res) => {
             }
         });
     } catch (e) {
-        res.status(500).json({ message: "Đã có lỗi xảy ra", _error: e });
+        console.dir(e);
+        res.status(500).json({ message: "Đã có lỗi xảy ra" });
     }
 };
 
@@ -68,11 +69,11 @@ exports.login = (req, res) => {
                         });
 
                     } else {
-                        res.status(202).json({ error: 'Mật khẩu không đúng' })
+                        res.status(202).json({ message: 'Mật khẩu không đúng' })
                     }
                 }
                 else {
-                    res.status(202).json({ error: 'Tên đăng nhập không đúng' })
+                    res.status(202).json({ message: 'Tên đăng nhập không đúng' })
                 }
             } else {
                 console.dir(err);
@@ -80,7 +81,8 @@ exports.login = (req, res) => {
             }
         });
     } catch (e) {
-        res.status(500).json({ message: "Đã có lỗi xảy ra", _error: e });
+        console.dir(e);
+        res.status(500).json({ message: "Đã có lỗi xảy ra" });
     }
 };
 
@@ -93,7 +95,8 @@ exports.logout = (req, res) => {
 
         res.status(200).json({ message: "Đăng xuất thành công" });
     } catch (e) {
-        res.status(500).json({ message: "Đã có lỗi xảy ra", _error: e });
+        console.dir(e);
+        res.status(500).json({ message: "Đã có lỗi xảy ra" });
     }
 };
 
@@ -105,8 +108,6 @@ exports.isAuthenticated = (req, res, next) => {
             let jwtToken = req.headers.authorization.split(' ')[1];
             jwt.verify(jwtToken, config.jwtSecret, (err, payload) => {
                 if (!err) {
-                    console.dir(payload);
-                    console.dir(req.headers.authorization);
                     // check time expried
 
                     let now = new Date();
@@ -121,24 +122,27 @@ exports.isAuthenticated = (req, res, next) => {
                     }
 
                     let email = payload.email;
+                    if (req.headers.email === payload.email) {
+                        database.query(`SELECT created_time_token FROM users WHERE email = ?`, [email], (err, rows, fields) => {
+                            if (!err) {
+                                if (rows.length > 0) {
+                                    var info = rows[0];
 
-                    database.query(`SELECT created_time_token FROM users WHERE email = ?`, [email], (err, rows, fields) => {
-                        if (!err) {
-                            if (rows.length > 0) {
-                                var info = rows[0];
+                                    let created_time_token = info.created_time_token;
 
-                                let created_time_token = info.created_time_token;
-
-                                if (created_time_token === createdTime.toString()) {
-                                    next();
+                                    if (created_time_token === createdTime.toString()) {
+                                        next();
+                                    } else {
+                                        res.status(401).json({ message: "Xác thực không thành công!" });
+                                    }
                                 } else {
                                     res.status(401).json({ message: "Xác thực không thành công!" });
                                 }
-                            } else {
-                                res.status(401).json({ message: "Xác thực không thành công!" });
                             }
-                        }
-                    });
+                        });
+                    } else {
+                        res.status(401).json({ message: "Xác thực không thành công!" });
+                    }
                 } else {
                     console.dir(err);
                     res.status(401).json({ message: "Xác thực không thành công!" });
@@ -146,6 +150,7 @@ exports.isAuthenticated = (req, res, next) => {
             });
         }
     } catch (e) {
+        console.dir(e);
         res.status(500).json({ message: "Đã có lỗi xảy ra", _error: e });
     }
 }
