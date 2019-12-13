@@ -4,7 +4,7 @@ exports.get_user_address = (req, res) => {
     try {
         let body = req.query;
         console.log([body.customerId]);
-        database.query(`SELECT address, province, district, ward FROM addresses WHERE user_id = ?`, [body.customerId], (err, rows, field) => {
+        database.query(`SELECT * FROM addresses WHERE user_id = ?`, [body.customerId], (err, rows, field) => {
             if (!err){
                 if (rows.length > 0) {
                     let userAddress = rows;
