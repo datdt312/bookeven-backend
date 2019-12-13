@@ -11,7 +11,8 @@ const router = app => {
     app.use('/apis', require('./auth'));
     app.use('/apis/user', require('./user'));
     app.use('/apis/bookfield', require('./bookfield'));
-    app.use('/apis/address', require('./address'))
+    app.use('/apis/address', require('./address'));
+    app.use('/apis/cart', require('./cart'));
 }
 
 module.exports = router;
