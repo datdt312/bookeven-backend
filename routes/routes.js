@@ -3,9 +3,7 @@ const authController = require('../controllers/authController');
 const router = app => {
 
     app.get('/', (request, response) => {
-        response.send({
-            message: 'Node.js and Express REST API'
-        });
+        response.send('<h1 style="transform: translate(50%, 200px);">chào mừng hải hải đến với thế giới api</h1>');
     });
 
     app.use('/apis', require('./auth'));
