@@ -9,7 +9,7 @@ exports.signup = (req, res) => {
         database.query(`SELECT * FROM users WHERE Email = ?`, [body.email], (err, rows, feilds) => {
             if (!err) {
                 if (rows.length > 0) {
-                    res.status(400).json({ message: "Email has been used!" });
+                    res.status(202).json({ message: "Email đã được sử dụng" });
                 }
                 else {
                     var hash_password = bcrypt.hashSync(body.password, 10);
@@ -18,36 +18,32 @@ exports.signup = (req, res) => {
                         [body.fullname, body.email, hash_password, body.phone],
                         (err, rows, fields) => {
                             if (!err) {
-                                res.status(200).json({ message: "Registed successfully!" });
+                                res.status(200).json({ message: "Đăng ký thành công" });
                             } else {
-                                console.log(err);
-                                res.status(400).json({ message: "Something went wrong!" });
+                                console.dir(err);
+                                res.status(500).json({ message: "Đã có lỗi xảy ra" });
                             }
                         });
                 }
             } else {
-                console.log(err);
-                res.status(400).json({ message: "Something went wrong!" });
+                console.dir(err);
+                res.status(500).json({ message: "Đã có lỗi xảy ra" });
             }
         });
     } catch (e) {
-        res.status(400).json({ message: "Something went wrong!", _error: e });
+        res.status(500).json({ message: "Đã có lỗi xảy ra", _error: e });
     }
 };
 
 exports.login = (req, res) => {
     try {
         const body = req.body;
-        console.dir(body);
-
 
         database.query(`SELECT id, email, password, fullname, role FROM users WHERE email = ?`, [body.email], (err, rows, feilds) => {
             if (!err) {
                 if (rows.length > 0) {
                     var info = rows[0];
-                    console.dir(info);
                     const match = bcrypt.compareSync(body.password, info.password);
-                    console.log(match);
 
                     if (match) {
                         console.log('correct');
@@ -62,31 +58,29 @@ exports.login = (req, res) => {
                             'token': jwtToken
                         };
                         var createdTime = jwt.decode(jwtToken).iat;
-                        console.log(createdTime);
                         database.query('UPDATE users SET created_time_token = ? WHERE email = ?', [createdTime, body.email], (err, rows, feilds) => {
                             if (!err) {
                                 res.status(200).json(jsonResponse);
                             } else {
-                                console.log(err);
-                                res.status(400).json({ message: "Something went wrong!q" });
+                                console.dir(err);
+                                res.status(500).json({ message: "Đã có lỗi xảy ra" });
                             }
                         });
 
                     } else {
-                        res.status(400).json({ error: 'Email or password has been slain!' })
+                        res.status(202).json({ error: 'Mật khẩu không đúng' })
                     }
                 }
                 else {
-                    res.status(400).json({ error: 'Email or password has been slain!' })
+                    res.status(202).json({ error: 'Tên đăng nhập không đúng' })
                 }
             } else {
-                console.log(err);
-
-                res.status(400).json({ message: "Something went wrong!" });
+                console.dir(err);
+                res.status(500).json({ message: "Đã có lỗi xảy ra" });
             }
         });
     } catch (e) {
-        res.status(400).json({ message: "Something went wrong!", _error: e });
+        res.status(500).json({ message: "Đã có lỗi xảy ra", _error: e });
     }
 };
 
@@ -97,9 +91,9 @@ exports.logout = (req, res) => {
         var payload = { email: body.email };
         var jwtToken = jwt.sign(payload, config.jwtSecret, { expiresIn: '1' });
 
-        res.status(200).json({ message: "Logout successfully!" });
+        res.status(200).json({ message: "Đăng xuất thành công" });
     } catch (e) {
-        res.status(400).json({ message: "Something went wrong!", _error: e });
+        res.status(500).json({ message: "Đã có lỗi xảy ra", _error: e });
     }
 };
 
@@ -122,7 +116,7 @@ exports.isAuthenticated = (req, res, next) => {
 
                     let exp = payload.exp;
                     if (differTime >= exp) {
-                        res.status(400).json({ message: "Unauthorized! Welcome to Login page!" });
+                        res.status(401).json({ message: "Xác thực không thành công!" });
                         return;
                     }
 
@@ -134,25 +128,24 @@ exports.isAuthenticated = (req, res, next) => {
                                 var info = rows[0];
 
                                 let created_time_token = info.created_time_token;
-                                console.log(typeof (created_time_token) + created_time_token);
-                                console.log(typeof (createdTime.toString()) + createdTime.toString());
 
                                 if (created_time_token === createdTime.toString()) {
                                     next();
                                 } else {
-                                    res.status(400).json({ message: "Unauthorized! Welcome to Login page!" });
+                                    res.status(401).json({ message: "Xác thực không thành công!" });
                                 }
                             } else {
-                                res.status(400).json({ message: "Unauthorized! Welcome to Login page!" });
+                                res.status(401).json({ message: "Xác thực không thành công!" });
                             }
                         }
                     });
                 } else {
-                    res.status(400).json({ message: "Unauthorized! Welcome to Login page!" });
+                    console.dir(err);
+                    res.status(401).json({ message: "Xác thực không thành công!" });
                 }
             });
         }
     } catch (e) {
-        res.status(400).json({ message: "Something went wrong!", _error: e });
+        res.status(500).json({ message: "Đã có lỗi xảy ra", _error: e });
     }
 }
