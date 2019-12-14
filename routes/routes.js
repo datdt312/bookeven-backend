@@ -12,6 +12,7 @@ const router = app => {
     app.use('/apis/address', require('./address'));
     app.use('/apis/cart', require('./cart'));
     app.use('/apis/comment', require('./comment'));
+    app.use('apis/order', require('./order'));
 }
 
 module.exports = router;
