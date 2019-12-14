@@ -2,69 +2,77 @@ const database = require('../database/connection');
 
 exports.get_user_address = (req, res) => {
     try {
-        let body = req.query;
-        console.log([body.customerId]);
-        database.query(`SELECT * FROM addresses WHERE user_id = ?`, [body.customerId], (err, rows, field) => {
+        let user_id = req.headers.id;
+        database.query(`SELECT id, address AS street, province, district, ward FROM addresses WHERE user_id = ?`,
+                        [user_id], (err, rows, field) => {
+
             if (!err){
                 if (rows.length > 0) {
                     let userAddress = rows;
                     res.status(200).json(userAddress);
                 }   else {
-                    res.status(400).json({message: "Can't find any result"});
+                    res.status(202).json({message: "Không thực hiện được yêu cầù"});
                 }
             } else {
-                res.status(400).json({message: err});
+                res.status(202).json({message: "Không thực hiện được yêu cầù"});
             }
         })
     } catch(e){
-        res.status(400).json({message: "Something went not so right :(", _error: e});
+        res.status(500).json({message: "Đã có lỗi xảy ra", _error: e});
     }
 }
 
 exports.new = (req, res) => {
     try {
+        let user_id = req.headers.id;
         let body = req.body;
-        let params = [body.street, body.customerId, body.province, body.district, body.ward];
-        database.query(`INSERT INTO addresses (address, user_id, province, district, ward) VALUES (?, ?, ?, ?, ?)`, params, (err, rows, field) =>{
+        let params = [body.street, user_id, body.province, body.district, body.ward];
+        database.query(`INSERT INTO addresses (address, user_id, province, district, ward) VALUES (?, ?, ?, ?, ?);
+                        SELECT id, address AS street, province, district, ward FROM addresses WHERE id=(SELECT LAST_INSERT_ID() FROM addresses LIMIT 1);`,
+                        params, (err, rows, field) =>{
             if (!err) {
-                res.status(200).json({message: "New address saved"});
+                let addedInfo = rows[1];
+                res.status(200).json({data: addedInfo, message: "Thêm địa chỉ mới thành công"});
             } else {
-                res.status(400).json({message: err});
+                res.status(202).json({message: "Không thực hiện được yêu cầu"});
             }
         })
     } catch (e){
-        res.status(400).json({message: "Something went not so right :(", _error: e});
+        res.status(500).json({message: "Đã có lỗi xảy ra", _error: e});
     }
 }
 
 exports.update = (req, res) => {
     try {
-        let itemId = req.query.addressId;
         let body = req.body;
-        let params = [body.street, body.customerId, body.province, body.district, body.ward, itemId];
-        database.query(`UPDATE addresses SET address = ?, user_id = ?, province = ?, district = ?, ward = ? WHERE id = ?`, params, (err, rows, field) =>{
+        let params = [body.street, body.province, body.district, body.ward, body.address_id, body.address_id];
+        
+        database.query(`UPDATE addresses SET address = ?, province = ?, district = ?, ward = ? WHERE id = ?;
+                        SELECT id, address AS street, province, district, ward FROM addresses WHERE id = ?`,
+                        params, (err, rows, field) =>{
             if (!err) {
-                res.status(200).json({message: "New address updated"});
+                let updatedInfo = rows[1];
+                res.status(200).json({data: updatedInfo, message: "Cập nhật thành công"});
             } else {
-                res.status(400).json({message: err});
+                res.status(202).json({message: "Không thực hiện được yêu cầu"});
             }
         })
     } catch (e){
-        res.status(400).json({message: "Something went not so right :(", _error: e});
+        res.status(500).json({message: "Đã có lỗi xảy ra", _error: e});
     }
 }
 
 exports.delete = (req, res) => {
     try {
-        let itemId = req.query.addressId;
-        database.query(`DELETE FROM addresses WHERE id = ?`, itemId, (err, rows, field) =>{
+        let address_id = req.body.address_id;
+        database.query(`DELETE FROM addresses WHERE id = ?`, [address_id], (err, rows, field) =>{
             if (!err) {
-                res.status(200).json({message: "Address deleted"});
+                res.status(200).json({address_id, message: "Xóa thành công"});
             } else {
-                res.status(400).json({message: err});
+                res.status(202).json({message: "Không thực hiện được yêu cầu"});
             }
         })
     } catch (e){
-        res.status(400).json({message: "Something went not so right :(", _error: e});
+        res.status(500).json({message: "Đã có lỗi xảy ra", _error: e});
     }
 }
