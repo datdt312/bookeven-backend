@@ -1,11 +1,30 @@
 const database = require('../database/connection');
+const config = require('../helpers/config');
 
 exports.get_cart_data = (req, res) => {
     try {
-        var body = req.body;
         var user_id = req.headers.id;
+        var query_string = `SELECT b.id, b.name, b.author, b.price, b.discount, c.amount, b.image
+                    FROM carts c
+                    LEFT JOIN books b
+                    ON b.id = c.book_id
+                    WHERE user_id = ${user_id}`;
 
-        database.query(` `, [], (err, rows, fields) => { });
+        database.query(query_string, (err, rows, fields) => {
+            if (!err) {
+                if (rows.length > 0) {
+                    rows.forEach(element => {
+                        element.image = config.hostImage + element.image;
+                    });
+                    res.status(200).json(rows);
+                } else {
+                    res.status(202).json({ message: "Không xử lý được yêu cầu" });
+                }
+            } else {
+                console.dir(err);
+                res.status(500).json({ message: "Đã có lỗi xảy ra" });
+            }
+        });
     } catch (e) {
         console.dir(e);
         res.status(500).json({ message: "Đã có lỗi xảy ra" });
@@ -107,6 +126,7 @@ exports.remove_all_book = (user_id) => {
             if (!err) {
                 return true;
             } else {
+                console.dir(err);
                 return false;
             }
         })
