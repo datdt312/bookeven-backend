@@ -33,6 +33,38 @@ exports.add_book = (req, res) => {
     }
 };
 
+exports.add_book_ver_hai_hai = (req, res) => {
+    try {
+        var user_id = req.headers.id;
+        var book_id = req.body.book_id;
+        var amount = req.body.amount;
+
+        database.query(`SELECT * FROM carts WHERE book_id = ?`, [book_id], (err, rows, fields) => {
+            if (!err) {
+                if (rows.length > 0) {
+                    var info = rows[0];
+                    var newreq = req;
+
+                    newreq.body.amount = (parseInt(info.amount) + parseInt(amount));
+                    console.dir(info);
+                    console.dir(amount);
+                    console.dir(req.body);
+
+                    this.update_amount(newreq, res);
+                } else {
+                    this.add_book(req, res);
+                }
+            } else {
+                console.dir(err);
+                res.status(500).json({ message: "Đã có lỗi xảy ra" });
+            }
+        });
+    } catch (e) {
+        console.dir(e);
+        res.status(500).json({ message: "Đã có lỗi xảy ra" });
+    }
+};
+
 exports.remove_book = (req, res) => {
     try {
         var user_id = req.headers.id;
