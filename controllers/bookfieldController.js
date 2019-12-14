@@ -8,15 +8,15 @@ exports.list = (req, res) => {
                     let bookfieldList = rows;
                     res.status(200).json(bookfieldList);
                 } else {
-                    res.status(400).json({message: "Can't find any result"})
+                    res.status(202).json({message: "Không thực hiện được yêu cầu"})
                 }
             } else {
-                res.status(400).json({message: err});
+                res.status(202).json({message: "Không thực hiện được yêu cầu"});
             }
         })
 
     } catch(e){
-        res.status(400).json({message: "Something went not so right :(", _error: e})
+        res.status(500).json({message: "Đã có lỗi xảy ra", _error: e})
     }
 }
 
