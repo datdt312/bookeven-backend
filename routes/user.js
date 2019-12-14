@@ -5,7 +5,7 @@ var usersController = require('../controllers/usersController');
 var authController = require('../controllers/authController');
 
 // Route vào các controller
-router.get('/:id', authController.isAuthenticated, usersController.get_user_data);
-router.put('/:id', authController.isAuthenticated, usersController.update_user_data);
+router.get('/info', authController.isAuthenticated, usersController.get_user_data);
+router.put('/update', authController.isAuthenticated, usersController.update_user_data);
 
 module.exports = router;
