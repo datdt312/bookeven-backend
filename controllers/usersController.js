@@ -3,9 +3,9 @@ const bcrypt = require('bcrypt');
 
 exports.get_user_data = (req, res) => {
     try {
-        var body = req.params;
+        var id = req.headers.id;
 
-        database.query('SELECT id, email, fullname, phone, role FROM users WHERE id = ?', [body.id], (err, rows, fields) => {
+        database.query('SELECT id, email, fullname, phone, role FROM users WHERE id = ?', [id], (err, rows, fields) => {
             if (!err) {
                 if (rows.length > 0) {
                     var info = rows[0];
