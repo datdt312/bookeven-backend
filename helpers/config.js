@@ -8,5 +8,6 @@ module.exports = {
         multipleStatements: true
     },
     'sqlClearDB': 'mysql://b137671def551b:330b4371@us-mm-auto-gcp-east-01-b.cleardb.net/gcp_f5f9d807ec1ad2d618dc?reconnect=true&multipleStatements=true',
-    'sqlDevDB': 'mysql://f5yes7h5zgd4wpiu:yt0rajq23bm10bhy@k9xdebw4k3zynl4u.cbetxkdyhwsb.us-east-1.rds.amazonaws.com:3306/ut3lag2kozq6hsx6?multipleStatements=true'
+    'sqlDevDB': 'mysql://f5yes7h5zgd4wpiu:yt0rajq23bm10bhy@k9xdebw4k3zynl4u.cbetxkdyhwsb.us-east-1.rds.amazonaws.com:3306/ut3lag2kozq6hsx6?multipleStatements=true',
+    'hostImage': 'https://storage.googleapis.com/remisbest/image/'
 }

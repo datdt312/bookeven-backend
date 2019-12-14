@@ -45,12 +45,9 @@ exports.add_book_ver_hai_hai = (req, res) => {
                     var info = rows[0];
                     var newreq = req;
 
-                    newreq.body.amount = (parseInt(info.amount) + parseInt(amount));
-                    console.dir(info);
-                    console.dir(amount);
-                    console.dir(req.body);
+                    req.body.amount = (parseInt(info.amount) + parseInt(amount));
 
-                    this.update_amount(newreq, res);
+                    this.update_amount(req, res);
                 } else {
                     this.add_book(req, res);
                 }
@@ -101,5 +98,20 @@ exports.update_amount = (req, res) => {
     } catch (e) {
         console.dir(e);
         res.status(500).json({ message: "Đã có lỗi xảy ra" });
+    }
+};
+
+exports.remove_all_book = (user_id) => {
+    try {
+        database.query('DELETE FROM carts WHERE user_id = ?', [user_id], (err, rows, fields) => {
+            if (!err) {
+                return true;
+            } else {
+                return false;
+            }
+        })
+    } catch (e) {
+        console.dir(e);
+        return false;
     }
 };
