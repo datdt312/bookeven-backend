@@ -3,7 +3,7 @@ const database = require('../database/connection');
 exports.get_cart_data = (req, res) => {
     try {
         var body = req.body;
-        var id = req.params.id;
+        var user_id = req.headers.id;
 
         database.query(` `, [], (err, rows, fields) => { });
     } catch (e) {

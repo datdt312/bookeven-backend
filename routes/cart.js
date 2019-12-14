@@ -6,7 +6,7 @@ var authController = require('../controllers/authController');
 
 // Route vào các controller
 router.post('/new', authController.isAuthenticated, cartsController.add_book);
-router.post('/delete/:book_id', authController.isAuthenticated, cartsController.remove_book);
-router.post('/update', authController.isAuthenticated, cartsController.update_amount);
+router.delete('/delete', authController.isAuthenticated, cartsController.remove_book);
+router.put('/update', authController.isAuthenticated, cartsController.update_amount);
 
 module.exports = router;
