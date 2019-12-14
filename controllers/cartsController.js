@@ -33,6 +33,35 @@ exports.add_book = (req, res) => {
     }
 };
 
+exports.add_book_ver_hai_hai = (req, res) => {
+    try {
+        var user_id = req.headers.id;
+        var book_id = req.body.book_id;
+        var amount = req.body.amount;
+
+        database.query(`SELECT * FROM carts WHERE book_id = ?`, [book_id], (err, rows, fields) => {
+            if (!err) {
+                if (rows.length > 0) {
+                    var info = rows[0];
+                    var newreq = req;
+
+                    req.body.amount = (parseInt(info.amount) + parseInt(amount));
+
+                    this.update_amount(req, res);
+                } else {
+                    this.add_book(req, res);
+                }
+            } else {
+                console.dir(err);
+                res.status(500).json({ message: "Đã có lỗi xảy ra" });
+            }
+        });
+    } catch (e) {
+        console.dir(e);
+        res.status(500).json({ message: "Đã có lỗi xảy ra" });
+    }
+};
+
 exports.remove_book = (req, res) => {
     try {
         var user_id = req.headers.id;
@@ -69,5 +98,20 @@ exports.update_amount = (req, res) => {
     } catch (e) {
         console.dir(e);
         res.status(500).json({ message: "Đã có lỗi xảy ra" });
+    }
+};
+
+exports.remove_all_book = (user_id) => {
+    try {
+        database.query('DELETE FROM carts WHERE user_id = ?', [user_id], (err, rows, fields) => {
+            if (!err) {
+                return true;
+            } else {
+                return false;
+            }
+        })
+    } catch (e) {
+        console.dir(e);
+        return false;
     }
 };
