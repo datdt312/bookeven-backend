@@ -5,6 +5,7 @@ exports.get_user_address = (req, res) => {
         let user_id = req.headers.id;
         database.query(`SELECT id, address AS street, province, district, ward FROM addresses WHERE user_id = ?`,
                         [user_id], (err, rows, field) => {
+
             if (!err){
                 if (rows.length > 0) {
                     let userAddress = rows;
