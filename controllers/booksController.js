@@ -106,11 +106,7 @@ exports.update_book = (req, res) => {
             { key: "discount", value: parseFloat(body.discount) }
         ];
 
-        set_values = book.map(e => {
-            if (utils.isInt(e.value))
-                return `${e.key} = ${e.value}`;
-            return `${e.key} = \'${e.value}\'`;
-        }).join(', ');
+        set_values = book.map(e => `${e.key} = \'${e.value}\'`).join(', ');
 
         var query_string = `UPDATE books SET ${set_values} WHERE id = ${body.id}`;
 
