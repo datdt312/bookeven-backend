@@ -25,7 +25,6 @@ exports.get_book_data = (req, res) => {
             if (!err) {
                 if (rows.length > 0) {
                     var info = rows[0];
-                    info.image = config.hostImage + info.image;
 
                     res.status(200).json(info);
                 } else {

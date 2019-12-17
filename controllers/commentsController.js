@@ -1,16 +1,36 @@
 const database = require('../database/connection');
 
-// exports.get_all_comment_on_book = (req, res) => {
-//     try {
-//         var body = req.body;
-//         var user_id = req.headers.id;
+exports.get_all_comment_on_book = (req, res) => {
+    try {
+        var book_id = req.body.id;
 
-//         database.query(` `, [], (err, rows, fields) => { });
-//     } catch (e) {
-//         console.dir(e);
-//         res.status(500).json({ message: "Đã có lỗi xảy ra" });
-//     }
-// };
+        const string_query = `SELECT
+                                    c.id,
+                                    u.fullname,
+                                    c.comment,
+                                    c.created_date
+                                FROM comments c
+                                RIGHT JOIN users u
+                                ON c.user_id = u.id
+                                WHERE c.is_deleted = false
+                                AND c.book_id = ${book_id}`;
+        console.log(string_query);
+        database.query(string_query, (err, rows, fields) => {
+            if (!err) {
+                console.log(rows.length);
+                console.dir(rows);
+                //console.dir(fields);
+                res.status(200).json(rows);
+            } else {
+                console.dir(err);
+                res.status(500).json({ message: "Đã có lỗi xảy ra" });
+            }
+        });
+    } catch (e) {
+        console.dir(e);
+        res.status(500).json({ message: "Đã có lỗi xảy ra" });
+    }
+};
 
 
 exports.add_comment = (req, res) => {
