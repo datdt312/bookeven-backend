@@ -141,3 +141,62 @@ exports.delete_book = (req, res) => {
         res.status(500).json({ message: "Đã có lỗi xảy ra" });
     }
 };
+
+exports.list_book_by_field = (req, res) => {
+    try {
+        var bookfield_id = req.body.bookField_id;
+        var amount = req.body.amount;
+        var page = req.body.page;
+
+        var query_string = `SELECT
+                                id,
+                                name AS 'title',
+                                author,
+                                price,
+                                image,
+                                discount
+                            FROM
+                                books
+                            WHERE
+                                bookfield_id = ${bookfield_id}
+                            LIMIT ${(page - 1) * amount}, ${amount}`;
+        var query_string_total = `SELECT COUNT(*) 
+                                    FROM books 
+                                    WHERE bookfield_id = ${bookfield_id}`;
+
+        database.query(`${query_string};${query_string_total}`, (err, rows, fields) => {
+            if (!err) {
+                if (rows[0].length > 0) {
+                    var books = rows[0].map(e => book_format(e));
+                    console.dir(books);
+                    if (rows[1].length > 0) {
+                        var total = rows[1].total;
+                        res.status(200).json({ books: books, total: total });
+                    } else {
+                        res.status(202).json({ message: "Không xử lý được yêu cầu" })
+                    }
+                } else {
+                    res.status(202).json({ message: "Không xử lý được yêu cầu" })
+                }
+            } else {
+                console.dir(err);
+                res.status(500).json({ message: "Đã có lỗi xảy ra" });
+            }
+        });
+    } catch (e) {
+        console.dir(e);
+        res.status(500).json({ message: "Đã có lỗi xảy ra" });
+    }
+};
+
+book_format = (row) => {
+    return {
+        id: row.id,
+        title: row.title,
+        author: row.author.replace(';', ", "),
+        price: row.price,
+        image: row.image,
+        discount: row.discount
+    };
+}
+

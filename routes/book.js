@@ -10,4 +10,7 @@ router.post('/new', authController.isAuthenticated, booksController.add_new_book
 router.put('/update', authController.isAuthenticated, booksController.update_book);
 router.delete('/delete', authController.isAuthenticated, booksController.delete_book);
 
+
+router.post('/list', booksController.list_book_by_field);
+
 module.exports = router;
