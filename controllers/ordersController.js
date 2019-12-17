@@ -14,7 +14,33 @@ exports.filter = (req, res) => {
 //order detail
 exports.detail = (req, res) => {
     let body = req.body;
+    /*
+    ngày đặt hàng
+    ngày nhận hàng
+    người nhận
+    địa chỉ
+    số điện thoại
+    sản phẩm
+    số lượng
+    đơn giá
+    tạm tính
+    thành tiền
+    tổng tiền 
+    */
     try {
+        var result = {
+            orderDate: null,
+            shipDate: null,
+            receiver: null,
+            address: null,
+            phone: null,
+            book: null,
+        }
+        var books = [{
+            bookName: null,
+            amount: null,
+            price: null,
+        }]
         database.query(`SELECT * FROM orders WHERE id = ?;
                         SELECT book_id, amount FROM orderdetails WHERE order_id = ?`,
                         [body.id, body.id], (err, rows, fields) => {
@@ -48,7 +74,7 @@ exports.add_order = (req, res) => {
                                 FROM carts WHERE user_id = ?
                                 ;`, [order_id, user_id], (err, rows, fields) => {
                     if (!err){
-                        res.status(200).json({ order_id: order_id, message: "Tạo đơn hàng thành công" });
+                        res.status(200).json({ message: "Tạo đơn hàng thành công" });
                         cartsController.remove_all_book(user_id);
                     } else {
                         res.status(202).json({message: "Không thực hiện được yêu cầu" + err});
