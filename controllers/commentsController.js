@@ -13,13 +13,11 @@ exports.get_all_comment_on_book = (req, res) => {
                                 RIGHT JOIN users u
                                 ON c.user_id = u.id
                                 WHERE c.is_deleted = false
-                                AND c.book_id = ${book_id}`;
-        console.log(string_query);
+                                AND c.book_id = ${book_id}
+                                ORDER BY c.id`;
+
         database.query(string_query, (err, rows, fields) => {
             if (!err) {
-                console.log(rows.length);
-                console.dir(rows);
-                //console.dir(fields);
                 res.status(200).json(rows);
             } else {
                 console.dir(err);

@@ -1,0 +1,7 @@
+exports.isInt = (n) => {
+    return Number(n) === n && n % 1 === 0;
+};
+
+exports.isFloat = (n) => {
+    return Number(n) === n && n % 1 !== 0;
+};
