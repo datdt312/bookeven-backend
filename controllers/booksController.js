@@ -153,7 +153,8 @@ exports.list_book_by_field = (req, res) => {
                                 author,
                                 price,
                                 image,
-                                discount
+                                discount,
+                                inventory
                             FROM
                                 books
                             WHERE
