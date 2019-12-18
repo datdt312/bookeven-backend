@@ -46,7 +46,7 @@ exports.list = (req, res) => {
 
     } catch(e){
         res.status(500).json({message: "Đã có lỗi xảy ra", _error: e})
-    }
+    }*/
 }
 
 //Filter
