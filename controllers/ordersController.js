@@ -3,7 +3,24 @@ const cartsController = require('./cartsController');
 
 //list
 exports.list = (req, res) => {
-
+	try {
+		let user_id = req.headers.id;
+		database.query(`SELECT user_id, id , address_id, created_date, ended_date, status FROM orders`, (err, rows, fields) => {
+			if(!err) {
+				if (rows.length > 0){
+                    let orderList = rows;
+                    //res.status(200).json(orderList);
+                    console.log(rows);
+                } else {
+                    res.status(202).json({message: "Không thực hiện được yêu cầu"})
+                }
+            } else {
+                res.status(202).json({message: "Không thực hiện được yêu cầu"});
+            }
+		});
+	} catch(e){
+        res.status(500).json({message: "Đã có lỗi xảy ra", _error: e})
+    }
 }
 
 //Filter

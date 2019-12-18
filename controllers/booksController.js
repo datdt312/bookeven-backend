@@ -26,7 +26,6 @@ exports.get_book_data = (req, res) => {
             if (!err) {
                 if (rows.length > 0) {
                     var info = rows[0];
-
                     res.status(200).json(info);
                 } else {
                     res.status(202).json({ message: "Không xử lý được yêu cầu" });
@@ -199,4 +198,3 @@ book_format = (row) => {
         discount: row.discount
     };
 }
-
