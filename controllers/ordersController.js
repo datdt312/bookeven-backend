@@ -1,17 +1,32 @@
 const database = require('../database/connection');
 const cartsController = require('./cartsController');
 
-//list
-exports.list = (req, res) => {
-
+function order_get_total(order_id) {
+    return new Promise((resolve, reject) => {
+        let result = {
+            id: order_id,
+            books: [{
+                name: null,
+                amount: null,
+                price: null,
+                discount: null,
+            }],
+            total: 0
+        }
+        detail_get_book_info(result)
+            .then(result => {
+                result.books.forEach(book => {
+                    result.total += (book.price - (book.discount*book.price/100))*book.amount;
+                })
+                resolve(result.total);
+            })
+            .catch(err => {
+                return reject(err);
+            })
+    })
 }
 
-//Filter
-exports.filter = (req, res) => {
-
-}
-
-
+//detail services
 function detail_get_order_info(result, id) {
     return new Promise((resolve, reject) => {
         database.query(`SELECT * FROM orders WHERE id = ?;`,
@@ -32,6 +47,7 @@ function detail_get_order_info(result, id) {
     })
 } 
 
+//detail services
 function detail_get_address_info(result){
     return new Promise((resolve, reject) => {
         database.query(`SELECT * FROM addresses WHERE id = ?;`, 
@@ -49,6 +65,7 @@ function detail_get_address_info(result){
     })
 }
 
+//detail services
 function detail_get_user_info(result){
     return new Promise((resolve, reject) => {
         database.query(`SELECT * FROM users WHERE id = ?;`, 
@@ -64,6 +81,7 @@ function detail_get_user_info(result){
     })
 }
 
+//detail services
 function detail_get_book_info(result){
     return new Promise((resolve, reject) => {
         database.query(`SELECT od.amount, b.price, b.name, b.discount 
@@ -79,6 +97,27 @@ function detail_get_book_info(result){
             }                 
         })
     })
+}
+
+//list
+exports.list = (req, res) => {
+    /*
+        How to gọi hàm cho que que
+        order_get_total(truyền order id vào đây))
+            .then(resutlt => {
+                result là tổng tiền tính đc, chỉ có hiệu lực trong hàm này thôi ra ngoài là undefined đấy :v
+                xử  lý trong này thôi nha
+            })
+            .catch(e => {
+                res.status(202).json({message: "Không thực hiện được yêu cầu"});
+            });
+
+    */
+}
+
+//Filter
+exports.filter = (req, res) => {
+    order_get_total(10).then(resutlt => console.log(resutlt)).catch(e => console.log(e));
 }
 
 //order detail
