@@ -2,7 +2,7 @@ const database = require('../database/connection');
 
 exports.list = (req, res) => {
     try {
-        database.query(`SELECT name FROM bookfields`, (err, rows, field) => {
+        database.query(`SELECT * FROM bookfields`, (err, rows, field) => {
             if (!err){
                 if (rows.length > 0){
                     let bookfieldList = rows;

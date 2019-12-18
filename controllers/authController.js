@@ -18,7 +18,40 @@ exports.signup = (req, res) => {
                         [body.fullname, body.email, hash_password, body.phone],
                         (err, rows, fields) => {
                             if (!err) {
-                                res.status(200).json({ message: "Đăng ký thành công" });
+                                res.status(201).json({ message: "Đăng ký thành công" });
+                            } else {
+                                console.dir(err);
+                                res.status(500).json({ message: "Đã có lỗi xảy ra" });
+                            }
+                        });
+                }
+            } else {
+                console.dir(err);
+                res.status(500).json({ message: "Đã có lỗi xảy ra" });
+            }
+        });
+    } catch (e) {
+        console.dir(e);
+        res.status(500).json({ message: "Đã có lỗi xảy ra" });
+    }
+};
+
+exports.signup_manager = (req, res) => {
+    try {
+        const body = req.body;
+        database.query(`SELECT * FROM users WHERE Email = ?`, [body.email], (err, rows, feilds) => {
+            if (!err) {
+                if (rows.length > 0) {
+                    res.status(202).json({ message: "Email đã được sử dụng" });
+                }
+                else {
+                    var hash_password = bcrypt.hashSync(body.password, 10);
+                    database.query(`INSERT INTO users(fullname, email, password, phone, role) 
+                                    VALUE (?,?,?,?,2)`,
+                        [body.fullname, body.email, hash_password, body.phone],
+                        (err, rows, fields) => {
+                            if (!err) {
+                                res.status(201).json({ message: "Đăng ký thành công" });
                             } else {
                                 console.dir(err);
                                 res.status(500).json({ message: "Đã có lỗi xảy ra" });
