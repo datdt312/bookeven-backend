@@ -170,7 +170,7 @@ exports.list_book_by_field = (req, res) => {
                     var books = rows[0].map(e => book_format(e));
                     console.dir(books);
                     if (rows[1].length > 0) {
-                        var total = rows[1].total;
+                        var total = rows[1][0].total;
                         res.status(200).json({ books: books, total: total });
                     } else {
                         res.status(202).json({ message: "Không xử lý được yêu cầu" })
