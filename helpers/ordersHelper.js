@@ -108,7 +108,8 @@ exports.check_bought = function (user_id, book_id) {
                 if (!err) {
                     if (rows.length > 0) {
                         return true;
-                    } else return false;
+                    }
+                    return false;
                 } else {
                     console.log(err);
                     return false;
@@ -118,5 +119,5 @@ exports.check_bought = function (user_id, book_id) {
         console.log(e);
         return false;
     }
+    return false;
 }
-
