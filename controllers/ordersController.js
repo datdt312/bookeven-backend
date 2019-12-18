@@ -24,6 +24,7 @@ function order_get_total(order_id) {
                 return reject(err);
             })
     })
+}
 
 //detail services
 function detail_get_order_info(result, id) {
