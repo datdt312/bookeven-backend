@@ -1,6 +1,6 @@
 const database = require('../database/connection');
 const config = require('../helpers/config');
-const utils = require('../helpers/utils');
+const booksHelper = require('../helpers/booksHelper');
 
 exports.get_book_data = (req, res) => {
     try {
@@ -17,7 +17,7 @@ exports.get_book_data = (req, res) => {
                                 b.image,
                                 b.description,
                                 b.discount,
-                                bf.name AS 'bookfield'
+                                b.bookfield_id
                             FROM books b
                             LEFT JOIN bookfields bf
                             ON b.bookfield_id = bf.id
@@ -167,7 +167,7 @@ exports.list_book_by_field = (req, res) => {
         database.query(`${query_string};${query_string_total}`, (err, rows, fields) => {
             if (!err) {
                 if (rows[0].length > 0) {
-                    var books = rows[0].map(e => book_format(e));
+                    var books = rows[0].map(e => booksHelper.book_format(e));
                     console.dir(books);
                     if (rows[1].length > 0) {
                         var total = rows[1][0].total;
@@ -256,14 +256,3 @@ exports.list_book_newest = (req, res) => {
     }
 }
 
-book_format = (row) => {
-    return {
-        id: row.id,
-        title: row.title,
-        author: row.author.replace(';', ", "),
-        price: row.price,
-        image: row.image,
-        discount: row.discount,
-        inventory: row.inventory
-    };
-}

@@ -43,9 +43,13 @@ exports.add_book = (req, res) => {
         var book_id = req.body.book_id;
         var amount = req.body.amount;
 
-        database.query(`INSERT INTO carts(book_id, user_id, amount) VALUE (?,?,?) `, [book_id, user_id, amount], (err, rows, fields) => {
+        var query_string_1 = `INSERT INTO carts(book_id, user_id, amount) VALUE (${book_id},${user_id},${amount})`;
+
+        var query_string_2 = `SELECT `;
+
+        database.query(`${query_string_1};${query_string_2}`, (err, rows, fields) => {
             if (!err) {
-                res.status(200).json({ message: "Thêm sách vào giỏ thành công" })
+                res.status(200).json(rows[1]);
             } else {
                 console.dir(err);
                 res.status(500).json({ message: "Đã có lỗi xảy ra" });
