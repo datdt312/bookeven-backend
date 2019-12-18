@@ -10,8 +10,9 @@ exports.get_user_address = (req, res) => {
                 if (rows.length > 0) {
                     let userAddress = rows;
                     res.status(200).json(userAddress);
-                }   else {
-                    res.status(202).json({message: "Không thực hiện được yêu cầù"});
+                }   else 
+                if (rows.length === 0) {
+                    res.status(200).json([]);
                 }
             } else {
                 res.status(202).json({message: "Không thực hiện được yêu cầù"});
@@ -26,13 +27,13 @@ exports.new = (req, res) => {
     try {
         let user_id = req.headers.id;
         let body = req.body;
-        let params = [body.street, user_id, body.province, body.district, body.ward];
+        let params = [body.street, user_id, parseInt(body.province), parseInt(body.district), parseInt(body.ward)];
         database.query(`INSERT INTO addresses (address, user_id, province, district, ward) VALUES (?, ?, ?, ?, ?);
                         SELECT id, address AS street, province, district, ward FROM addresses WHERE id=(SELECT LAST_INSERT_ID() FROM addresses LIMIT 1);`,
                         params, (err, rows, field) =>{
             if (!err) {
                 let addedInfo = rows[1];
-                res.status(200).json({data: addedInfo, message: "Thêm địa chỉ mới thành công"});
+                res.status(201).json({data: addedInfo, message: "Thêm địa chỉ mới thành công"});
             } else {
                 res.status(202).json({message: "Không thực hiện được yêu cầu"});
             }
@@ -45,7 +46,7 @@ exports.new = (req, res) => {
 exports.update = (req, res) => {
     try {
         let body = req.body;
-        let params = [body.street, body.province, body.district, body.ward, body.address_id, body.address_id];
+        let params = [body.street, parseInt(body.province), parseInt(body.district), parseInt(body.ward), body.address_id, body.address_id];
         
         database.query(`UPDATE addresses SET address = ?, province = ?, district = ?, ward = ? WHERE id = ?;
                         SELECT id, address AS street, province, district, ward FROM addresses WHERE id = ?`,
