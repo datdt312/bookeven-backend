@@ -189,6 +189,19 @@ exports.list_book_by_field = (req, res) => {
     }
 };
 
+exports.list_book_best_rate = (req, res) => {
+    try {
+        var bookfield_id = req.body.bookField_id;
+
+
+
+
+    } catch (e) {
+        console.dir(e);
+        res.status(500).json({ message: "Đã có lỗi xảy ra" });
+    }
+};
+
 book_format = (row) => {
     return {
         id: row.id,
@@ -196,6 +209,7 @@ book_format = (row) => {
         author: row.author.replace(';', ", "),
         price: row.price,
         image: row.image,
-        discount: row.discount
+        discount: row.discount,
+        inventory: row.inventory
     };
 }
