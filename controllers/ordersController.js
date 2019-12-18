@@ -3,7 +3,7 @@ const cartsController = require('./cartsController');
 
 //list
 exports.list = (req, res) => {
-	try {
+	/*try {
 		let order_id = req.body.order_id;
         let books[] = req.body.books;
         let orderDate = req.body.orderDate;
@@ -25,7 +25,7 @@ exports.list = (req, res) => {
 		});
 	} catch(e){
         res.status(500).json({message: "Đã có lỗi xảy ra", _error: e})
-    }
+    }*/
 }
 
 //Filter
