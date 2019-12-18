@@ -24,7 +24,6 @@ function order_get_total(order_id) {
                 return reject(err);
             })
     })
-}
 
 //detail services
 function detail_get_order_info(result, id) {
@@ -113,6 +112,31 @@ exports.list = (req, res) => {
             });
 
     */
+  
+    // phần cũ của m đang làm dở đây
+    /*try {
+		let order_id = req.body.order_id;
+        let books[] = req.body.books;
+        let orderDate = req.body.orderDate;
+        let shipDate = req.body.shipDate;
+        let status = req.body.status;
+        let user_id = req.headers.id;
+		database.query(`SELECT id, `, (err, rows, fields) => {
+			if(!err) {
+				if (rows.length > 0){
+                    let orderList = rows;
+                    //res.status(200).json(orderList);
+                    console.log(rows);
+                } else {
+                    res.status(202).json({message: "Không thực hiện được yêu cầu"})
+                }
+            } else {
+                res.status(202).json({message: "Không thực hiện được yêu cầu"});
+            }
+		});
+	} catch(e){
+        res.status(500).json({message: "Đã có lỗi xảy ra", _error: e})
+    }*/
 }
 
 //Filter
