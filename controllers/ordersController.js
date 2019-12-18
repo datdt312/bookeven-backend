@@ -4,8 +4,13 @@ const cartsController = require('./cartsController');
 //list
 exports.list = (req, res) => {
 	try {
-		let user_id = req.headers.id;
-		database.query(`SELECT user_id, id , address_id, created_date, ended_date, status FROM orders`, (err, rows, fields) => {
+		let order_id = req.body.order_id;
+        let books[] = req.body.books;
+        let orderDate = req.body.orderDate;
+        let shipDate = req.body.shipDate;
+        let status = req.body.status;
+        let user_id = req.headers.id;
+		database.query(`SELECT id, `, (err, rows, fields) => {
 			if(!err) {
 				if (rows.length > 0){
                     let orderList = rows;
