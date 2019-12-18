@@ -5,8 +5,8 @@ var rateController = require('../controllers/rateController');
 var authController = require('../controllers/authController');
 
 // Route vào các controller
-router.post('/addRate'/*, authController.isAuthenticated*/, rateController.addRate);
-router.post('/listRate'/*, authController.isAuthenticated*/, rateController.list);
-router.post('/updateRate'/*, authController.isAuthenticated*/, rateController.update);
+router.post('/add'/*, authController.isAuthenticated*/, rateController.addRate);
+router.post('/list'/*, authController.isAuthenticated*/, rateController.list);
+router.put('/update'/*, authController.isAuthenticated*/, rateController.update);
 
 module.exports = router;
