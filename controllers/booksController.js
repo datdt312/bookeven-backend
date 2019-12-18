@@ -160,7 +160,7 @@ exports.list_book_by_field = (req, res) => {
                             WHERE
                                 bookfield_id = ${bookfield_id}
                             LIMIT ${(page - 1) * amount}, ${amount}`;
-        var query_string_total = `SELECT COUNT(*) 
+        var query_string_total = `SELECT COUNT(*) AS 'total'
                                     FROM books 
                                     WHERE bookfield_id = ${bookfield_id}`;
 
