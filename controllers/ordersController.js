@@ -1,9 +1,120 @@
 const database = require('../database/connection');
 const cartsController = require('./cartsController');
 
+function order_get_total(order_id) {
+    return new Promise((resolve, reject) => {
+        let result = {
+            id: order_id,
+            books: [{
+                name: null,
+                amount: null,
+                price: null,
+                discount: null,
+            }],
+            total: 0
+        }
+        detail_get_book_info(result)
+            .then(result => {
+                result.books.forEach(book => {
+                    result.total += (book.price - (book.discount*book.price/100))*book.amount;
+                })
+                resolve(result.total);
+            })
+            .catch(err => {
+                return reject(err);
+            })
+    })
+
+//detail services
+function detail_get_order_info(result, id) {
+    return new Promise((resolve, reject) => {
+        database.query(`SELECT * FROM orders WHERE id = ?;`,
+                        [id], (err, rows, fields) => {
+                if (!err) {
+                    result.orderDate = rows[0].created_date;
+                    result.shipDate = rows[0].ended_date;
+                    result.status = rows[0].status;
+                    result.id = rows[0].id;
+                    result.address.id = rows[0].address_id;
+                    result.user.id = rows[0].user_id;
+                    resolve(result);
+            } else {
+                return reject(err);
+            }
+        })
+
+    })
+} 
+
+//detail services
+function detail_get_address_info(result){
+    return new Promise((resolve, reject) => {
+        database.query(`SELECT * FROM addresses WHERE id = ?;`, 
+                        [result.address.id], (err, rows, fields) => {
+            if (!err){
+                result.address.useraddress = rows[0].address;
+                result.address.province = rows[0].province;
+                result.address.district = rows[0].district;
+                result.address.ward = rows[0].ward;
+                resolve(result);
+            } else {
+                return reject(err);
+            }
+        })                 
+    })
+}
+
+//detail services
+function detail_get_user_info(result){
+    return new Promise((resolve, reject) => {
+        database.query(`SELECT * FROM users WHERE id = ?;`, 
+                        [result.user.id], (err, rows, fields) => {
+            if (!err){
+                result.user.name = rows[0].fullname;
+                result.user.phone = rows[0].phone;
+                resolve(result);
+            } else {
+                return reject(err);
+            }                 
+        })
+    })
+}
+
+//detail services
+function detail_get_book_info(result){
+    return new Promise((resolve, reject) => {
+        database.query(`SELECT od.amount, b.price, b.name, b.discount 
+                        FROM orderdetails od LEFT JOIN books b 
+                        ON od.book_id = b.id 
+                        WHERE od.order_id = ?;`, 
+                        [result.id], (err, rows, fields) => {
+            if (!err){
+                result.books = rows;
+                resolve(result);
+            } else {
+                return reject(err);
+            }                 
+        })
+    })
+}
+
 //list
 exports.list = (req, res) => {
-	/*try {
+    /*
+        How to gọi hàm cho que que
+        order_get_total(truyền order id vào đây))
+            .then(resutlt => {
+                result là tổng tiền tính đc, chỉ có hiệu lực trong hàm này thôi ra ngoài là undefined đấy :v
+                xử  lý trong này thôi nha
+            })
+            .catch(e => {
+                res.status(202).json({message: "Không thực hiện được yêu cầu"});
+            });
+
+    */
+  
+    // phần cũ của m đang làm dở đây
+    /*try {
 		let order_id = req.body.order_id;
         let books[] = req.body.books;
         let orderDate = req.body.orderDate;
@@ -30,77 +141,7 @@ exports.list = (req, res) => {
 
 //Filter
 exports.filter = (req, res) => {
-
-}
-
-
-function detail_get_order_info(result, id) {
-    return new Promise((resolve, reject) => {
-        database.query(`SELECT * FROM orders WHERE id = ?;`,
-                        [id], (err, rows, fields) => {
-                if (!err) {
-                    result.orderDate = rows[0].created_date;
-                    result.shipDate = rows[0].ended_date;
-                    result.status = rows[0].status;
-                    result.id = rows[0].id;
-                    result.address.id = rows[0].address_id;
-                    result.user.id = rows[0].user_id;
-                    resolve(result);
-            } else {
-                return reject(err);
-            }
-        })
-
-    })
-} 
-
-function detail_get_address_info(result){
-    return new Promise((resolve, reject) => {
-        database.query(`SELECT * FROM addresses WHERE id = ?;`, 
-                        [result.address.id], (err, rows, fields) => {
-            if (!err){
-                result.address.useraddress = rows[0].address;
-                result.address.province = rows[0].province;
-                result.address.district = rows[0].district;
-                result.address.ward = rows[0].ward;
-                resolve(result);
-            } else {
-                return reject(err);
-            }
-        })                 
-    })
-}
-
-function detail_get_user_info(result){
-    return new Promise((resolve, reject) => {
-        database.query(`SELECT * FROM users WHERE id = ?;`, 
-                        [result.user.id], (err, rows, fields) => {
-            if (!err){
-                result.user.name = rows[0].fullname;
-                result.user.phone = rows[0].phone;
-                resolve(result);
-            } else {
-                return reject(err);
-            }                 
-        })
-    })
-}
-
-function detail_get_book_info(result){
-    return new Promise((resolve, reject) => {
-        database.query(`SELECT od.amount, b.price, b.name, b.discount 
-                        FROM orderdetails od LEFT JOIN books b 
-                        ON od.book_id = b.id 
-                        WHERE od.order_id = ?;`, 
-                        [result.id], (err, rows, fields) => {
-            if (!err){
-                result.books = rows;
-                resolve(result);
-            } else {
-                return reject(err);
-            }                 
-        })
-    })
+    order_get_total(10).then(resutlt => console.log(resutlt)).catch(e => console.log(e));
 }
 
 //order detail
