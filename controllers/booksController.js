@@ -193,14 +193,68 @@ exports.list_book_best_rate = (req, res) => {
     try {
         var bookfield_id = req.body.bookField_id;
 
+        var query_string = `SELECT
+                                b.id,
+                                b.name AS 'title',
+                                b.author,
+                                b.price,
+                                b.image,
+                                b.discount,
+                                AVG(r.rate) AS 'rate'
+                            FROM rates r
+                            RIGHT JOIN books b
+                            ON r.book_id = b.id
+                            WHERE b.bookfield_id = ${bookfield_id}
+                            AND rate IS NOT NULL
+                            GROUP BY r.book_id
+                            ORDER BY rate DESC
+                            LIMIT 5`;
 
-
-
+        database.query(query_string, (err, rows, fields) => {
+            if (!err) {
+                res.status(200).json({ books: rows });
+            } else {
+                console.dir(err);
+                res.status(500).json({ message: "Đã có lỗi xảy ra" });
+            }
+        });
     } catch (e) {
         console.dir(e);
         res.status(500).json({ message: "Đã có lỗi xảy ra" });
     }
 };
+
+exports.list_book_newest = (req, res) => {
+    try {
+        var amount = req.body.amount;
+        var page = req.body.page;
+
+        var query_string = `SELECT
+                                b.id,
+                                b.name AS 'title',
+                                b.author,
+                                b.price,
+                                b.image,
+                                b.discount,
+                                b.inventory,
+                                b.published_date
+                            FROM books b
+                            ORDER BY published_date DESC, b.id
+                            LIMIT ${(page - 1) * amount}, ${amount}`;
+        var query_string_total = `SELECT COUNT(*) AS 'total' FROM books`;
+        database.query(`${query_string};${query_string_total}`, (err, rows, fields) => {
+            if (!err) {
+                res.status(200).json({ books: rows[0], total: rows[1][0].total });
+            } else {
+                console.dir(err);
+                res.status(500).json({ message: "Đã có lỗi xảy ra" });
+            }
+        });
+    } catch (e) {
+        console.dir(e);
+        res.status(500).json({ message: "Đã có lỗi xảy ra" });
+    }
+}
 
 book_format = (row) => {
     return {
