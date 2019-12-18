@@ -7,8 +7,8 @@ exports.list = (req, res) => {
                 if (rows.length > 0){
                     let bookfieldList = rows;
                     res.status(200).json(bookfieldList);
-                } else {
-                    res.status(202).json({message: "Không thực hiện được yêu cầu"})
+                } else if (rows.length === 0) {
+                    res.status(200).json([])
                 }
             } else {
                 res.status(202).json({message: "Không thực hiện được yêu cầu"});

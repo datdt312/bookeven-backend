@@ -4,22 +4,27 @@ const config = require('../helpers/config');
 exports.get_cart_data = (req, res) => {
     try {
         var user_id = req.headers.id;
-        var query_string = `SELECT b.id, b.name, b.author, b.price, b.discount, c.amount, b.image
-                    FROM carts c
-                    LEFT JOIN books b
-                    ON b.id = c.book_id
-                    WHERE user_id = ${user_id}`;
+        var query_string = `SELECT 
+                                b.id,
+                                b.name, 
+                                b.author, 
+                                b.price, 
+                                b.discount, 
+                                c.amount, 
+                                b.image,
+                                b.inventory
+                            FROM carts c
+                            LEFT JOIN books b
+                            ON b.id = c.book_id
+                            WHERE user_id = ${user_id}`;
 
         database.query(query_string, (err, rows, fields) => {
             if (!err) {
-                if (rows.length > 0) {
-                    rows.forEach(element => {
-                        element.image = config.hostImage + element.image;
-                    });
-                    res.status(200).json(rows);
-                } else {
-                    res.status(202).json({ message: "Không xử lý được yêu cầu" });
-                }
+                rows.map(e => {
+                    e.author = e.author.replace(';', ", ");
+                    return e;
+                });
+                res.status(200).json(rows);
             } else {
                 console.dir(err);
                 res.status(500).json({ message: "Đã có lỗi xảy ra" });
@@ -84,7 +89,7 @@ exports.add_book_ver_hai_hai = (req, res) => {
 exports.remove_book = (req, res) => {
     try {
         var user_id = req.headers.id;
-        var book_id = req.params.book_id;
+        var book_id = req.body.book_id;
 
         database.query(`DELETE FROM carts WHERE book_id = ? AND user_id = ?`, [book_id, user_id], (err, rows, fields) => {
             if (!err) {
