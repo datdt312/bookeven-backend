@@ -84,7 +84,7 @@ exports.add_book_ver_hai_hai = (req, res) => {
 exports.remove_book = (req, res) => {
     try {
         var user_id = req.headers.id;
-        var book_id = req.params.book_id;
+        var book_id = req.body.book_id;
 
         database.query(`DELETE FROM carts WHERE book_id = ? AND user_id = ?`, [book_id, user_id], (err, rows, fields) => {
             if (!err) {
