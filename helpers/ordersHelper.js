@@ -97,27 +97,3 @@ exports.detail_get_book_info = function (result) {
             })
     })
 }
-
-//check if a customer bought a book
-exports.check_bought = function (user_id, book_id) {
-    try {
-        database.query(`select o.user_id, o.id, o.status, od.book_id 
-                        from orders o left join orderdetails od on o.id = od.order_id 
-                        where o.user_id = ? and od.book_id = ? and o.status = 2`,
-            [user_id, book_id], (err, rows, fields) => {
-                if (!err) {
-                    if (rows.length > 0) {
-                        return true;
-                    }
-                    return false;
-                } else {
-                    console.log(err);
-                    return false;
-                }
-            })
-    } catch (e) {
-        console.log(e);
-        return false;
-    }
-    return false;
-}

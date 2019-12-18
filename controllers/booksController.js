@@ -1,6 +1,8 @@
 const database = require('../database/connection');
 const config = require('../helpers/config');
 const booksHelper = require('../helpers/booksHelper');
+const ordersHelper = require('../helpers/ordersHelper');
+const authController = require('./authController');
 
 exports.get_book_data = (req, res) => {
     try {
@@ -22,10 +24,26 @@ exports.get_book_data = (req, res) => {
                             LEFT JOIN bookfields bf
                             ON b.bookfield_id = bf.id
                             WHERE b.id = ${book_id}`;
-        database.query(query_string, (err, rows, fields) => {
+        var user_id = 0;
+        if (req.headers.id && req.headers.email) {
+            user_id = req.headers.id;
+        }
+        var query_string_bought = `SELECT
+                                        o.user_id, 
+                                        o.id, 
+                                        o.status, 
+                                        od.book_id 
+                                    FROM orders o 
+                                    LEFT JOIN orderdetails od 
+                                    ON o.id = od.order_id 
+                                    WHERE o.user_id = ${user_id} 
+                                    AND od.book_id = ${book_id} 
+                                    AND o.status = 2`;
+        database.query(`${query_string};${query_string_bought}`, (err, rows, fields) => {
             if (!err) {
-                if (rows.length > 0) {
-                    var info = rows[0];
+                if (rows[0].length > 0) {
+                    var info = rows[0][0];
+                    info.bought = (rows[1].length > 0);
                     res.status(200).json(info);
                 } else {
                     res.status(202).json({ message: "Không xử lý được yêu cầu" });
