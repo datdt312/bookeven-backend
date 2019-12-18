@@ -1,151 +1,59 @@
 const database = require('../database/connection');
-const cartsController = require('./cartsController');
-const ordersHelper = require('../helpers/ordersHelper');
 
-
-//list
-exports.list = (req, res) => {
-    /*
-        How to gọi hàm cho que que
-        ordersHelper.order_get_total(truyền order id vào đây))
-            .then(resutlt => {
-                result là tổng tiền tính đc, chỉ có hiệu lực trong hàm này thôi ra ngoài là undefined đấy :v
-                xử  lý trong này thôi nha
-            })
-            .catch(e => {
-                res.status(202).json({message: "Không thực hiện được yêu cầu"});
-            });
-
-    */
-  
-    // phần cũ của m đang làm dở đây
+exports.addRate = (req, res) => {
     try {
-		let order_id = req.body.order_id;
-        let orderDate = req.body.orderDate;
-        let total = req.body.total;
-        let shipDate = req.body.shipDate;
-        let status = req.body.status;
-		
-        ordersHelper.order_get_total(order_id)
-            .then(result => {
-                database.query(`SELECT id, created_date, ended_date, status from orders WHERE id = ?`, [order_id], (err, rows, fields) => {
-                    if (rows.length > 0) {
-                        res.status(200).json({
-                            "order_id": rows[0]['id'],
-                            "total": result,
-                            "orderDate": rows[0]['created_date'],
-                            "shipDate": rows[0]['ended_date'],
-                            "status": rows[0]['status']
-                        });
-                    }   
-                })
-            })
-            .catch(e => {
-                res.status(202).json({message: "Không thực hiện được yêu cầu"});
-            });
+        let book_id = req.body.book_id;
+        let rate = req.body.rate;
+        let user_id = req.headers.id;
+        database.query(`INSERT INTO rates(user_id, book_id, rate) VALUE (?, ?, ?)`, [user_id, book_id, rate], (err, rows, fields) => {
+            if (!err) {
+                console.log(rows);
+                res.status(201).json({message: "Rate thành công"});
+            } else {
+                res.status(500).json({ message: "Đã có lỗi xảy ra" + err});
+            }
+        });
 
-	} catch(e){
+    } catch(e){
         res.status(500).json({message: "Đã có lỗi xảy ra", _error: e})
     }
 }
 
-//Filter
-exports.filter = (req, res) => {
-    
-    ordersHelper.order_get_total(10).then(resutlt => console.log(resutlt)).catch(e => console.log(e));
-}
-
-//order detail
-exports.detail = (req, res) => {
-    var order = {
-        id: null,
-        orderDate: null,
-        shipDate: null,
-        status: null,
-        user: {
-            id: null, 
-            name: null,
-            phone: null,
-        },
-        books: [{
-            name: null,
-            amount: null,
-            price: null,
-            discount: null,
-        }],
-        address: {
-            id: null,
-            useraddress: null,
-            province: null,
-            district: null,
-            ward: null,
-        }
-    }
-
-    let body = req.body;
-
-    ordersHelper.detail_get_order_info(order, body.id)
-        .then(result => ordersHelper.detail_get_address_info(result))
-        .then(result => ordersHelper.detail_get_user_info(result))
-        .then(result => ordersHelper.detail_get_book_info(result))
-        .then(result => {
-            res.status(200).json(result);
-        })
-        .catch(err => {
-            res.status(202).json({message: "Không thực hiện được yêu cầu"});
-        });
-}
-
-//new nè
-exports.add_order = (req, res) => {
-    let user_id = req.headers.id;
-    let body = req.body;
-    let params = [parseInt(user_id), body.createDate, parseInt(body.status), parseInt(body.address_id)];
+exports.list = (req, res) => {
     try {
-        //insert into orders
-        database.query(`INSERT INTO orders (user_id, created_date, status, address_id) VALUES (?, ?, ?, ?);
-                    SELECT LAST_INSERT_ID() AS 'order_id' FROM orders;`,
-                    params, (err, rows, fields) => {
-            if(!err) {
-                //get order id after inserting
-                let order_id = rows[1][0].order_id;
-                // insert into orderdetail
-                database.query(`INSERT INTO orderdetails (book_id, order_id, amount) 
-                                SELECT book_id, (SELECT id FROM orders WHERE id = ?), amount 
-                                FROM carts WHERE user_id = ?
-                                ;`, [parseInt(order_id), parseInt(user_id)], (err, rows, fields) => {
-                    if (!err){
-                        res.status(201).json({ message: "Tạo đơn hàng thành công" });
-                        cartsController.remove_all_book(user_id);
-                    } else {
-                        res.status(202).json({message: "Không thực hiện được yêu cầu"});
-                    }
-                })
+        let book_id_req = req.body.id;
+        let user_id = req.headers.id;
+        database.query(`SELECT u.fullname, rate from rates INNER JOIN users u ON rates.user_id = u.id WHERE book_id = ?`, [book_id_req], (err, rows, fields) => {
+            if (!err) {
+                console.log(rows);
+                if (rows.length > 0) {
+                    let rateList = rows;
+                    res.status(200).json(rateList);
+                }
             } else {
-                res.status(202).json({message: "Không thực hiện được yêu cầu"});
+                res.status(500).json({ message: "Đã có lỗi xảy ra" + err});
             }
-        })
-    } catch(e) {
-        res.status(500).json({message: "Đã có lỗi xảy ra", _error: e});
+        });
+
+        } catch(e){
+        res.status(500).json({message: "Đã có lỗi xảy ra", _error: e})
     }
-    
 }
 
-//update
 exports.update = (req, res) => {
-    let body = req.body;
-    let params = [body.shipDate, parseInt(body.status), body.id]
     try {
-        database.query(`UPDATE orders SET ended_date = ?, status = ? WHERE id = ?`, 
-                        params, (err, rows, fields) => {
-            if (!err){
-                res.status(200).json({message: "Cập nhật thành công"})
+        let book_id = req.body.book_id;
+        let rate = req.body.rate;
+        let user_id = req.headers.id;
+        database.query(`UPDATE rates SET rate = ? WHERE user_id = ? AND book_id = ?;`, [rate, user_id, book_id], (err, rows, fields) => {
+            if (!err) {
+                res.status(200).json({message: "update rate thanh cong"});
+            } else {
+                res.status(500).json({ message: "Đã có lỗi xảy ra" + err});
             }
-            else {
-                res.status(202).json({message: "Không thực hiện được yêu cầu"});
-            }
-        })
-    } catch (e){
-        res.status(500).json({message: "Đã có lỗi xảy ra", _error: e});
+        });
+
+    }catch (e) {
+        res.status(500).json({message: "Đã có lỗi xảy ra", _error: e})
     }
 }
