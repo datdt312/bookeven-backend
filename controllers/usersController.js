@@ -50,8 +50,8 @@ exports.update_user_data = (req, res) => {
 
 exports.change_password = (req, res) => {
     try {
-        var old_password = req.body.old_password;
-        var new_password = req.body.new_password;
+        var old_password = req.body.old_pass;
+        var new_password = req.body.new_pass;
 
         var user_id = req.headers.id;
         var email = req.headers.email;
