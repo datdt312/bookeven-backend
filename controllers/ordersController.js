@@ -51,8 +51,89 @@ exports.list = (req, res) => {
 
 //Filter
 exports.filter = (req, res) => {
-    
-    ordersHelper.order_get_total(10).then(resutlt => console.log(resutlt)).catch(e => console.log(e));
+    try {
+        /*"id": 0,
+        "fullName": "string",
+        "phone": "string",
+        "createDate": "2019-12-18T15:22:10.754Z",
+        "shipDate": "2019-12-18T15:22:10.754Z",
+        "status": 1*/
+
+        database.query(`SELECT o.id, u.fullname, u.phone, o.created_date, o.ended_date, o.status 
+                        FROM orders o, users u 
+                        WHERE o.user_id = u.id;
+                        SELECT od.order_id, od.amount, b.price, b.name, b.discount 
+                        FROM orderdetails od LEFT JOIN books b 
+                        ON od.book_id = b.id;
+                        `, (err, rows, fields) => {
+            if (rows.length > 0) {
+                let body = req.body;
+
+                let orders = [];
+                
+                let getTotal = (id) => {
+                    total = rows[1].filter(row => {
+                        return row.order_id === id;
+                    }).reduce(function(acc, object) {
+                        return  acc + (object.price - ((object.discount*object.price)/100))*object.amount;}, 0)
+                    return total;
+                }
+
+                //infomation
+                rows[0].map(row => {
+                    orders.push({
+                        id: row.id,
+                        fullName: row.fullname,
+                        phone: row.phone,
+                        createDate: row.created_date,
+                        shipDate: row.ended_date,
+                        status: row.status,
+                        total: getTotal(row.id)
+                    })
+                })
+            
+                if (body.id !== ""){
+                    orders = orders.filter((order) => {
+                        return order.id === body.id;
+                    })
+                }
+                if (body.fullName !== ""){
+                    orders = orders.filter((order) => {
+                        return order.fullName.includes(body.fullName);
+                    })
+                }
+                if (body.phone !== ""){
+                    orders = orders.filter((order) => {
+                        return order.phone.includes(body.phone);
+                    })
+                }
+                if (body.createDate !== ""){
+                    orders = orders.filter((order) => {
+                        return order.createDate === body.createDate;
+                    })
+                }
+                if (body.shipDate !== ""){
+                    orders = orders.filter((order) => {
+                        return order.shipDate === body.shipDate;
+                    })
+                }
+                if (body.status !== ""){
+                    orders = orders.filter((order) => {
+                        return order.status === body.status;
+                    })
+                }
+
+                res.status(200).json(orders);
+            } else {
+                res.status(200).json([])
+            }
+        })
+    } catch (e){
+        res.status(500).json({message: "Đã có lỗi xảy ra", _error: e})
+    }
+    ordersHelper.order_get_total(10)
+        .then(result => {ans = result})
+        .catch(e => console.log(e));
 }
 
 //order detail
@@ -100,7 +181,7 @@ exports.detail = (req, res) => {
 exports.add_order = (req, res) => {
     let user_id = req.headers.id;
     let body = req.body;
-    let params = [parseInt(user_id), body.createDate, parseInt(body.status), parseInt(body.address_id)];
+    let params = [parseInt(user_id), body.orderDate, parseInt(body.status), parseInt(body.address_id)];
     try {
         //insert into orders
         database.query(`INSERT INTO orders (user_id, created_date, status, address_id) VALUES (?, ?, ?, ?);

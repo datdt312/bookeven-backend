@@ -26,6 +26,7 @@ exports.order_get_total = function (order_id) {
     })
 }
 
+
 //detail services
 exports.detail_get_order_info = function (result, id) {
     return new Promise((resolve, reject) => {
