@@ -19,7 +19,8 @@ exports.get_book_data = (req, res) => {
                                 b.image,
                                 b.description,
                                 b.discount,
-                                b.bookfield_id
+                                b.bookfield_id,
+                                b.inventory
                             FROM books b
                             LEFT JOIN bookfields bf
                             ON b.bookfield_id = bf.id
