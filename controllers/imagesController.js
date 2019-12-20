@@ -11,7 +11,7 @@ exports.upload_image = (req, res) => {
         imgur.uploadBase64(image)
             .then((json) => {
                 console.log(json.data.link);
-                res.status(200).json({ image: json.data.link });
+                res.status(201).json({ image: json.data.link });
             })
             .catch(function (err) {
                 console.error(err.message);
