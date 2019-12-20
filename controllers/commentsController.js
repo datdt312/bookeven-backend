@@ -45,7 +45,7 @@ exports.add_comment = (req, res) => {
                 if (rows.length > 0) {
                     var info = rows[1][0];
                     console.dir(info);
-                    res.status(200).json({ comment_id: info.comment_id, message: "Đăng bình luận thành công" });
+                    res.status(201).json({ comment_id: info.comment_id, message: "Đăng bình luận thành công" });
                 } else {
                     res.status(202).json({ message: "Không thực hiện được yêu cầu" });
                 }
