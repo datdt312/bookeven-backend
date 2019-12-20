@@ -45,11 +45,19 @@ exports.add_book = (req, res) => {
 
         var query_string_1 = `INSERT INTO carts(book_id, user_id, amount) VALUE (${book_id},${user_id},${amount})`;
 
-        var query_string_2 = `SELECT `;
-
+        var query_string_2 = `SELECT 
+                                b.id,
+                                b.name AS 'title',
+                                b.author,
+                                b.price, 
+                                b.image,
+                                b.discount,
+                                b.inventory
+                            FROM books b
+                            WHERE b.id = ${book_id}`;
         database.query(`${query_string_1};${query_string_2}`, (err, rows, fields) => {
             if (!err) {
-                res.status(200).json(rows[1]);
+                res.status(201).json(rows[1]);
             } else {
                 console.dir(err);
                 res.status(500).json({ message: "Đã có lỗi xảy ra" });
@@ -67,15 +75,19 @@ exports.add_book_ver_hai_hai = (req, res) => {
         var book_id = req.body.book_id;
         var amount = req.body.amount;
 
-        database.query(`SELECT * FROM carts WHERE book_id = ?`, [book_id], (err, rows, fields) => {
+        database.query(`SELECT * FROM carts WHERE book_id = ?; SELECT inventory FROM books WHERE id = ?`, [book_id, book_id], (err, rows, fields) => {
             if (!err) {
-                if (rows.length > 0) {
-                    var info = rows[0];
-                    var newreq = req;
+                if (rows[0].length > 0) {
+                    var info = rows[0][0];
+                    console.dir(info);
 
-                    req.body.amount = (parseInt(info.amount) + parseInt(amount));
-
-                    this.update_amount(req, res);
+                    var new_amount = (parseInt(info.amount) + parseInt(amount));
+                    if (new_amount <= rows[1][0].inventory) {
+                        req.body.amount = new_amount;
+                        this.update_amount(req, res);
+                    } else {
+                        res.status(202).json({ message: "Số lượng sách vượt quá lượng sách đang có" });
+                    }
                 } else {
                     this.add_book(req, res);
                 }
