@@ -19,29 +19,34 @@ exports.list = (req, res) => {
     */
   
     // phần cũ của m đang làm dở đây
-    /*try {
-		let order_id = req.body.order_id;
-        let books[] = req.body.books;
+    try {
+        let order_id = req.body.order_id;
         let orderDate = req.body.orderDate;
+        let total = req.body.total;
         let shipDate = req.body.shipDate;
         let status = req.body.status;
-        let user_id = req.headers.id;
-		database.query(`SELECT id, `, (err, rows, fields) => {
-			if(!err) {
-				if (rows.length > 0){
-                    let orderList = rows;
-                    //res.status(200).json(orderList);
-                    console.log(rows);
-                } else {
-                    res.status(202).json({message: "Không thực hiện được yêu cầu"})
-                }
-            } else {
+        
+        ordersHelper.order_get_total(order_id)
+            .then(result => {
+                database.query(`SELECT id, created_date, ended_date, status from orders WHERE id = ?`, [order_id], (err, rows, fields) => {
+                    if (rows.length > 0) {
+                        res.status(200).json({
+                            "order_id": rows[0]['id'],
+                            "total": result,
+                            "orderDate": rows[0]['created_date'],
+                            "shipDate": rows[0]['ended_date'],
+                            "status": rows[0]['status']
+                        });
+                    }   
+                })
+            })
+            .catch(e => {
                 res.status(202).json({message: "Không thực hiện được yêu cầu"});
-            }
-		});
-	} catch(e){
+            });
+
+    } catch(e){
         res.status(500).json({message: "Đã có lỗi xảy ra", _error: e})
-    }*/
+    }
 }
 
 //Filter

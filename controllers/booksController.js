@@ -1,6 +1,8 @@
 const database = require('../database/connection');
 const config = require('../helpers/config');
-const utils = require('../helpers/utils');
+const booksHelper = require('../helpers/booksHelper');
+const ordersHelper = require('../helpers/ordersHelper');
+const authController = require('./authController');
 
 exports.get_book_data = (req, res) => {
     try {
@@ -17,15 +19,32 @@ exports.get_book_data = (req, res) => {
                                 b.image,
                                 b.description,
                                 b.discount,
-                                bf.name AS 'bookfield'
+                                b.bookfield_id,
+                                b.inventory
                             FROM books b
                             LEFT JOIN bookfields bf
                             ON b.bookfield_id = bf.id
                             WHERE b.id = ${book_id}`;
-        database.query(query_string, (err, rows, fields) => {
+        var user_id = 0;
+        if (req.headers.id && req.headers.email) {
+            user_id = req.headers.id;
+        }
+        var query_string_bought = `SELECT
+                                        o.user_id, 
+                                        o.id, 
+                                        o.status, 
+                                        od.book_id 
+                                    FROM orders o 
+                                    LEFT JOIN orderdetails od 
+                                    ON o.id = od.order_id 
+                                    WHERE o.user_id = ${user_id} 
+                                    AND od.book_id = ${book_id} 
+                                    AND o.status = 2`;
+        database.query(`${query_string};${query_string_bought}`, (err, rows, fields) => {
             if (!err) {
-                if (rows.length > 0) {
-                    var info = rows[0];
+                if (rows[0].length > 0) {
+                    var info = rows[0][0];
+                    info.bought = (rows[1].length > 0);
                     res.status(200).json(info);
                 } else {
                     res.status(202).json({ message: "Không xử lý được yêu cầu" });
@@ -56,7 +75,7 @@ exports.add_new_book = (req, res) => {
             { key: "bookfield_id", value: parseInt(body.bookField) },
             { key: "description", value: `${body.description}` },
             { key: "image", value: `${body.image}` },
-            { key: "inventory", value: parseFloat(body.inventory) },
+            { key: "inventory", value: parseInt(body.inventory) },
             { key: "discount", value: parseFloat(body.discount) }
         ];
 
@@ -160,17 +179,17 @@ exports.list_book_by_field = (req, res) => {
                             WHERE
                                 bookfield_id = ${bookfield_id}
                             LIMIT ${(page - 1) * amount}, ${amount}`;
-        var query_string_total = `SELECT COUNT(*) 
+        var query_string_total = `SELECT COUNT(*) AS 'total'
                                     FROM books 
                                     WHERE bookfield_id = ${bookfield_id}`;
 
         database.query(`${query_string};${query_string_total}`, (err, rows, fields) => {
             if (!err) {
                 if (rows[0].length > 0) {
-                    var books = rows[0].map(e => book_format(e));
+                    var books = rows[0].map(e => booksHelper.book_format(e));
                     console.dir(books);
                     if (rows[1].length > 0) {
-                        var total = rows[1].total;
+                        var total = rows[1][0].total;
                         res.status(200).json({ books: books, total: total });
                     } else {
                         res.status(202).json({ message: "Không xử lý được yêu cầu" })
@@ -193,23 +212,66 @@ exports.list_book_best_rate = (req, res) => {
     try {
         var bookfield_id = req.body.bookField_id;
 
+        var query_string = `SELECT
+                                b.id,
+                                b.name AS 'title',
+                                b.author,
+                                b.price,
+                                b.image,
+                                b.discount,
+                                AVG(r.rate) AS 'rate'
+                            FROM rates r
+                            RIGHT JOIN books b
+                            ON r.book_id = b.id
+                            WHERE b.bookfield_id = ${bookfield_id}
+                            AND rate IS NOT NULL
+                            GROUP BY r.book_id
+                            ORDER BY rate DESC
+                            LIMIT 5`;
 
-
-
+        database.query(query_string, (err, rows, fields) => {
+            if (!err) {
+                res.status(200).json({ books: rows });
+            } else {
+                console.dir(err);
+                res.status(500).json({ message: "Đã có lỗi xảy ra" });
+            }
+        });
     } catch (e) {
         console.dir(e);
         res.status(500).json({ message: "Đã có lỗi xảy ra" });
     }
 };
 
-book_format = (row) => {
-    return {
-        id: row.id,
-        title: row.title,
-        author: row.author.replace(';', ", "),
-        price: row.price,
-        image: row.image,
-        discount: row.discount,
-        inventory: row.inventory
-    };
+exports.list_book_newest = (req, res) => {
+    try {
+        var amount = req.body.amount;
+        var page = req.body.page;
+
+        var query_string = `SELECT
+                                b.id,
+                                b.name AS 'title',
+                                b.author,
+                                b.price,
+                                b.image,
+                                b.discount,
+                                b.inventory,
+                                b.published_date
+                            FROM books b
+                            ORDER BY published_date DESC, b.id
+                            LIMIT ${(page - 1) * amount}, ${amount}`;
+        var query_string_total = `SELECT COUNT(*) AS 'total' FROM books`;
+        database.query(`${query_string};${query_string_total}`, (err, rows, fields) => {
+            if (!err) {
+                res.status(200).json({ books: rows[0], total: rows[1][0].total });
+            } else {
+                console.dir(err);
+                res.status(500).json({ message: "Đã có lỗi xảy ra" });
+            }
+        });
+    } catch (e) {
+        console.dir(e);
+        res.status(500).json({ message: "Đã có lỗi xảy ra" });
+    }
 }
+
