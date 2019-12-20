@@ -5,20 +5,6 @@ const ordersHelper = require('../helpers/ordersHelper');
 
 //list
 exports.list = (req, res) => {
-    /*
-        How to gọi hàm cho que que
-        ordersHelper.order_get_total(truyền order id vào đây))
-            .then(resutlt => {
-                result là tổng tiền tính đc, chỉ có hiệu lực trong hàm này thôi ra ngoài là undefined đấy :v
-                xử  lý trong này thôi nha
-            })
-            .catch(e => {
-                res.status(202).json({message: "Không thực hiện được yêu cầu"});
-            });
-
-    */
-  
-    // phần cũ của m đang làm dở đây
     try {
         let order_id = req.body.order_id;
         let orderDate = req.body.orderDate;
@@ -52,13 +38,6 @@ exports.list = (req, res) => {
 //Filter
 exports.filter = (req, res) => {
     try {
-        /*"id": 0,
-        "fullName": "string",
-        "phone": "string",
-        "createDate": "2019-12-18T15:22:10.754Z",
-        "shipDate": "2019-12-18T15:22:10.754Z",
-        "status": 1*/
-
         database.query(`SELECT o.id, u.fullname, u.phone, o.created_date, o.ended_date, o.status 
                         FROM orders o, users u 
                         WHERE o.user_id = u.id;
