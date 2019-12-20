@@ -74,7 +74,7 @@ exports.add_new_book = (req, res) => {
             { key: "bookfield_id", value: parseInt(body.bookField) },
             { key: "description", value: `${body.description}` },
             { key: "image", value: `${body.image}` },
-            { key: "inventory", value: parseFloat(body.inventory) },
+            { key: "inventory", value: parseInt(body.inventory) },
             { key: "discount", value: parseFloat(body.discount) }
         ];
 
