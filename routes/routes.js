@@ -15,6 +15,7 @@ const router = app => {
     app.use('/apis/order', require('./order'));
     app.use('/apis/book', require('./book'));
     app.use('/apis/rate', require('./rate'));
+    app.use('/apis/image', require('./image'));
 
 }
 
