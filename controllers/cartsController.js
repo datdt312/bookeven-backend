@@ -49,7 +49,7 @@ exports.add_book = (req, res) => {
 
         database.query(`${query_string_1};${query_string_2}`, (err, rows, fields) => {
             if (!err) {
-                res.status(200).json(rows[1]);
+                res.status(201).json(rows[1]);
             } else {
                 console.dir(err);
                 res.status(500).json({ message: "Đã có lỗi xảy ra" });
