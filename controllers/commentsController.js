@@ -6,6 +6,7 @@ exports.get_all_comment_on_book = (req, res) => {
 
         const string_query = `SELECT
                                     c.id,
+                                    u.user_id,
                                     u.fullname,
                                     c.comment,
                                     c.created_date
