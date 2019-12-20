@@ -92,7 +92,10 @@ exports.add_new_book = (req, res) => {
                         SELECT LAST_INSERT_ID() AS 'id' FROM books`, (err, rows, fields) => {
             if (!err) {
                 var id = rows[1][0];
-                res.status(201).json({ id: id, message: "Đã thêm sách thành công" });
+                var data = {};
+                book.forEach(e => { data[e.key] = e.value });
+                data.id = id;
+                res.status(201).json(data);
             } else {
                 console.dir(err);
                 res.status(500).json({ message: "Đã có lỗi xảy ra" });
