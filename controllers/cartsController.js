@@ -47,7 +47,7 @@ exports.add_book = (req, res) => {
 
         var query_string_2 = `SELECT 
                                 b.id,
-                                b.name AS 'title',
+                                b.name,
                                 b.author,
                                 b.price, 
                                 b.image,
@@ -57,7 +57,7 @@ exports.add_book = (req, res) => {
                             WHERE b.id = ${book_id}`;
         database.query(`${query_string_1};${query_string_2}`, (err, rows, fields) => {
             if (!err) {
-                res.status(201).json(rows[1]);
+                res.status(201).json(rows[1][0]);
             } else {
                 console.dir(err);
                 res.status(500).json({ message: "Đã có lỗi xảy ra" });

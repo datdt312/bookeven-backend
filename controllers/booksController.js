@@ -222,7 +222,7 @@ exports.list_book_best_rate = (req, res) => {
                                 b.price,
                                 b.image,
                                 b.discount,
-                                AVG(r.rate) AS 'rate'
+                                ROUND(AVG(r.rate),1) AS 'rate'
                             FROM rates r
                             RIGHT JOIN books b
                             ON r.book_id = b.id
@@ -291,12 +291,12 @@ exports.filter = (req, res) => {
                 if (rows.length > 0) {
                     let body = req.body;
                     //filter 
-                    if (body.title !== ""){
+                    if (body.title !== "") {
                         rows = rows.filter((row) => {
                             return row.name.toLowerCase().includes(body.title.toLowerCase());
                         })
                     }
-                    if (body.bookField !== ""){
+                    if (body.bookField !== "") {
                         rows = rows.filter((row) => {
                             return row.bookfield === body.bookField;
                         })
@@ -327,7 +327,7 @@ exports.filter = (req, res) => {
                         total: 0,
                     }
 
-                    rows.map((row) => 
+                    rows.map((row) =>
                         result.books.push({
                             id: row.id,
                             title: row.name,
@@ -339,7 +339,7 @@ exports.filter = (req, res) => {
                             rate: row.rate.toFixed(1),
                         })
                     )
-                    let start = (body.page - 1)*body.amount;
+                    let start = (body.page - 1) * body.amount;
                     let end = start + body.amount;
                     result.books = result.books.slice(start, end);
                     result.total = rows.length;
@@ -353,7 +353,7 @@ exports.filter = (req, res) => {
             }
         })
 
-    } catch (e){
+    } catch (e) {
         res.status(500).json({ message: "Đã có lỗi xảy ra" });
 
     }
