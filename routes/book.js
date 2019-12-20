@@ -15,5 +15,6 @@ router.post('/list', booksController.list_book_by_field);
 router.post('/newest', booksController.list_book_newest);
 router.post('/bestRate', booksController.list_book_best_rate);
 
+router.post('/filter', booksController.filter);
 
 module.exports = router;

@@ -275,3 +275,83 @@ exports.list_book_newest = (req, res) => {
     }
 }
 
+exports.filter = (req, res) => {
+    try {
+        database.query(`SELECT b.id, b.name, b.author, b.price, b.image, b.discount, b.inventory,
+                        AVG(r.rate) AS rate, bf.name AS bookfield
+                        FROM books b, rates r, bookfields bf
+                        WHERE b.id = r.book_id AND b.bookfield_id = bf.id
+                        GROUP BY r.book_id;
+                        `, (err, rows, field) => {
+
+            if (!err) {
+                if (rows.length > 0) {
+                    let body = req.body;
+                    //filter 
+                    if (body.title !== ""){
+                        rows = rows.filter((row) => {
+                            return row.name.toLowerCase().includes(body.title.toLowerCase());
+                        })
+                    }
+                    if (body.bookField !== ""){
+                        rows = rows.filter((row) => {
+                            return row.bookfield === body.bookField;
+                        })
+                    }
+                    if (body.minRate !== "") {
+                        rows = rows.filter((row) => {
+                            return row.rate.toFixed(1) >= body.minRate.toFixed(1);
+                        })
+                    }
+                    if (body.maxRate !== "") {
+                        rows = rows.filter((row) => {
+                            return row.rate.toFixed(1) <= body.maxRate.toFixed(1);
+                        })
+                    }
+                    if (body.minPrice !== "") {
+                        rows = rows.filter((row) => {
+                            return row.price >= body.minPrice;
+                        })
+                    }
+                    if (body.maxPrice !== "") {
+                        rows = rows.filter((row) => {
+                            return row.price <= body.maxPrice;
+                        })
+                    }
+                    //give result 
+                    let result = {
+                        books: [],
+                        total: 0,
+                    }
+
+                    rows.map((row) => 
+                        result.books.push({
+                            id: row.id,
+                            title: row.name,
+                            author: row.author,
+                            price: row.price,
+                            image: row.image,
+                            discount: row.discount,
+                            inventory: row.inventory,
+                            rate: row.rate.toFixed(1),
+                        })
+                    )
+                    let start = (body.page - 1)*body.amount;
+                    let end = start + body.amount;
+                    result.books = result.books.slice(start, end);
+                    result.total = rows.length;
+
+                    res.status(200).json(result);
+                } else {
+                    res.status(200).json([]);
+                }
+            } else {
+                res.status(202).json({ message: "Không xử lý được yêu cầu" })
+            }
+        })
+
+    } catch (e){
+        res.status(500).json({ message: "Đã có lỗi xảy ra" });
+
+    }
+}
