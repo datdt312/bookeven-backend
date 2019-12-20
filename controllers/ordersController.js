@@ -174,13 +174,26 @@ exports.add_order = (req, res) => {
                                 SELECT book_id, (SELECT id FROM orders WHERE id = ?), amount 
                                 FROM carts WHERE user_id = ?
                                 ;`, [parseInt(order_id), parseInt(user_id)], (err, rows, fields) => {
-                    if (!err){
+                    if (err){
+                        res.status(202).json({message: "Không thực hiện được yêu cầu"});
+                    }
+                })
+                //delete from inventory 
+                database.query(`UPDATE books AS b, 
+                                (SELECT book_id, amount
+                                FROM orderdetails
+                                WHERE order_id = ? 
+                                ) AS od 
+                                SET b.inventory = b.inventory - od.amount 
+                                WHERE b.id = od.book_id;`, [parseInt(order_id)], (err, rows, fields) => {
+                    if (!err) {
                         res.status(201).json({ message: "Tạo đơn hàng thành công" });
                         cartsController.remove_all_book(user_id);
                     } else {
                         res.status(202).json({message: "Không thực hiện được yêu cầu"});
                     }
                 })
+
             } else {
                 res.status(202).json({message: "Không thực hiện được yêu cầu"});
             }
