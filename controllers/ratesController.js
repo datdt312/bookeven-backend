@@ -21,11 +21,12 @@ exports.addRate = (req, res) => {
 
 exports.list = (req, res) => {
 	try {
-		let book_id_req = req.body.id;
-		let user_id = req.headers.id;
-		database.query(`SELECT u.fullname, rate from rates INNER JOIN users u ON rates.user_id = u.id WHERE book_id = ?`, [book_id_req], (err, rows, fields) => {
+		let book_id = req.body.book_id;
+		database.query(`SELECT u.fullname, rate from rates 
+						RIGHT JOIN users u ON rates.user_id = u.id
+						WHERE book_id = ?`
+						, [book_id], (err, rows, fields) => {
 			if (!err) {
-				console.log(rows);
 				if (rows.length > 0) {
 					let rateList = rows;
 					res.status(200).json(rateList);
