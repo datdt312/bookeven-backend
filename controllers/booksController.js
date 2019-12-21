@@ -170,15 +170,16 @@ exports.list_book_by_field = (req, res) => {
         var page = req.body.page;
 
         var query_string = `SELECT
-                                id,
-                                name AS 'title',
-                                author,
-                                price,
-                                image,
-                                discount,
-                                inventory
+                                b.id,
+                                b.name AS 'title',
+                                b.author,
+                                b.price,
+                                b.image,
+                                b.discount,
+                                b.inventory,
+                                IFNULL((SELECT ROUND(AVG(r.rate),1) FROM rates r WHERE r.book_id = b.id),0) AS 'rate'
                             FROM
-                                books
+                                books b
                             WHERE
                                 bookfield_id = ${bookfield_id}
                             LIMIT ${(page - 1) * amount}, ${amount}`;
@@ -234,7 +235,7 @@ exports.list_book_best_rate = (req, res) => {
 
         database.query(query_string, (err, rows, fields) => {
             if (!err) {
-                res.status(200).json({ books: rows });
+                res.status(200).json(rows);
             } else {
                 console.dir(err);
                 res.status(500).json({ message: "Đã có lỗi xảy ra" });
@@ -259,7 +260,8 @@ exports.list_book_newest = (req, res) => {
                                 b.image,
                                 b.discount,
                                 b.inventory,
-                                b.published_date
+                                b.published_date,
+                                IFNULL((SELECT ROUND(AVG(r.rate),1) FROM rates r WHERE r.book_id = b.id),0) AS 'rate'
                             FROM books b
                             ORDER BY published_date DESC, b.id
                             LIMIT ${(page - 1) * amount}, ${amount}`;
