@@ -157,7 +157,7 @@ exports.detail = (req, res) => {
             res.status(200).json(result);
         })
         .catch(err => {
-            res.status(202).json({message: "Không thực hiện được yêu cầu"});
+            res.status(202).json({message: "Không thực hiện được yêu cầu" + err});
         });
 }
 
