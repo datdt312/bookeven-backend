@@ -355,6 +355,74 @@ exports.filter = (req, res) => {
 
     } catch (e) {
         res.status(500).json({ message: "Đã có lỗi xảy ra" });
-
     }
-}
+};
+
+exports.list_book_best_seller = (req, res) => {
+    try {
+        var amount = req.body.amount;
+        var page = req.body.page;
+        var query_string = `SELECT
+                                b.id,
+                                b.name AS 'title',
+                                b.author,
+                                b.price,
+                                b.image,
+                                b.discount,
+                                b.inventory,
+                                IFNULL((SELECT ROUND(AVG(r.rate),1) FROM rates r WHERE r.book_id = b.id),0) AS 'rate',
+                                IFNULL((SELECT SUM(amount) FROM orderdetails od WHERE od.book_id = b.id),0) AS 'sold'
+                            FROM books b
+                            ORDER BY (SELECT SUM(amount) FROM orderdetails od WHERE od.book_id = b.id) DESC, b.id
+                            LIMIT ${(page - 1) * amount}, ${amount}`;
+        var query_string_total = `SELECT COUNT(*) AS 'total' FROM books`;
+        database.query(`${query_string};${query_string_total}`, (err, rows, fields) => {
+            if (!err) {
+                var total = rows[1][0].total;
+                var data = rows[0];
+                res.status(200).json({ books: data, total: total });
+            } else {
+                console.dir(err);
+                res.status(500).json({ message: "Đã có lỗi xảy ra" });
+            }
+        });
+
+    } catch (e) {
+        console.dir(e);
+        res.status(500).json({ message: "Đã có lỗi xảy ra" });
+    }
+};
+
+exports.list_book_best_sales = (req, res) => {
+    try {
+        var amount = req.body.amount;
+        var page = req.body.page;
+
+        var query_string = `SELECT
+                                b.id,
+                                b.name AS 'title',
+                                b.author,
+                                b.price,
+                                b.image,
+                                b.discount,
+                                b.inventory,
+                                IFNULL((SELECT ROUND(AVG(r.rate),1) FROM rates r WHERE r.book_id = b.id),0) AS 'rate'
+                            FROM books b
+                            ORDER BY b.discount DESC
+                            LIMIT ${(page - 1) * amount}, ${amount}`;
+        var query_string_total = `SELECT COUNT(*) AS 'total' FROM books`;
+        database.query(`${query_string};${query_string_total}`, (err, rows, fields) => {
+            if (!err) {
+                var total = rows[1][0].total;
+                var data = rows[0];
+                res.status(200).json({ books: data, total: total });
+            } else {
+                console.dir(err);
+                res.status(500).json({ message: "Đã có lỗi xảy ra" });
+            }
+        });
+    } catch (e) {
+        console.dir(e);
+        res.status(500).json({ message: "Đã có lỗi xảy ra" });
+    }
+};
