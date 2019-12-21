@@ -30,6 +30,8 @@ exports.list = (req, res) => {
 				if (rows.length > 0) {
 					let rateList = rows;
 					res.status(200).json(rateList);
+				} else {
+					res.status(200).json([]);
 				}
             } else {
                 res.status(500).json({ message: "Đã có lỗi xảy ra" + err});
