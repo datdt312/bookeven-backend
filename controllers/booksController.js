@@ -287,10 +287,10 @@ exports.list_book_newest = (req, res) => {
 exports.filter = (req, res) => {
     try {
         database.query(`SELECT b.id, b.name, b.author, b.price, b.image, b.discount, b.inventory,
-                        AVG(r.rate) AS rate, bf.name AS bookfield
-                        FROM (books b LEFT JOIN rates r ON b.id = r.book_id), bookfields bf
-                        WHERE b.bookfield_id = bf.id
-                        GROUP BY r.book_id;
+                        ROUND(AVG(r.rate), 1) AS rate, bf.name AS bookfield
+                        FROM books b LEFT JOIN rates r ON r.book_id = b.id 
+                        LEFT JOIN bookfields bf ON bf.id = b.bookfield_id
+                        GROUP BY b.id;
                         `, (err, rows, field) => {
 
             if (!err) {
@@ -309,12 +309,16 @@ exports.filter = (req, res) => {
                     }
                     if (body.minRate !== "") {
                         rows = rows.filter((row) => {
-                            return row.rate.toFixed(1) >= body.minRate.toFixed(1);
+                            if (row !== null){
+                                return row.rate >= body.minRate;
+                            }
                         })
                     }
                     if (body.maxRate !== "") {
                         rows = rows.filter((row) => {
-                            return row.rate.toFixed(1) <= body.maxRate.toFixed(1);
+                            if (row !== null){
+                                return row.rate <= body.maxRate;
+                            }
                         })
                     }
                     if (body.minPrice !== "") {
@@ -342,7 +346,7 @@ exports.filter = (req, res) => {
                             image: row.image,
                             discount: row.discount,
                             inventory: row.inventory,
-                            rate: row.rate.toFixed(1),
+                            rate: row.rate,
                         })
                     )
                     let start = (body.page - 1) * body.amount;
