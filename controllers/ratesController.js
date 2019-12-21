@@ -24,12 +24,16 @@ exports.list = (req, res) => {
 		let book_id = req.body.book_id;
 		database.query(`SELECT u.fullname, rate from rates 
 						RIGHT JOIN users u ON rates.user_id = u.id
-						WHERE book_id = ?`
-						, [book_id], (err, rows, fields) => {
+						WHERE book_id = ?;
+						SELECT ROUND(AVG(rate), 1) AS rate FROM rates WHERE book_id = ? GROUP BY book_id;
+						`, [book_id, book_id], (err, rows, fields) => {
 			if (!err) {
 				if (rows.length > 0) {
-					let rateList = rows;
-					res.status(200).json(rateList);
+					let result = {
+						rates: rows[0],
+						totalRate: rows[1],
+					}
+					res.status(200).json(result);
 				} else {
 					res.status(200).json([]);
 				}
