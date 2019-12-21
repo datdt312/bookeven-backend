@@ -137,6 +137,7 @@ exports.detail = (req, res) => {
             amount: null,
             price: null,
             discount: null,
+            image: null,
         }],
         address: {
             id: null,
