@@ -288,8 +288,8 @@ exports.filter = (req, res) => {
     try {
         database.query(`SELECT b.id, b.name, b.author, b.price, b.image, b.discount, b.inventory,
                         AVG(r.rate) AS rate, bf.name AS bookfield
-                        FROM books b, rates r, bookfields bf
-                        WHERE b.id = r.book_id AND b.bookfield_id = bf.id
+                        FROM (books b LEFT JOIN rates r ON b.id = r.book_id), bookfields bf
+                        WHERE b.bookfield_id = bf.id
                         GROUP BY r.book_id;
                         `, (err, rows, field) => {
 
