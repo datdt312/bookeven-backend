@@ -235,6 +235,10 @@ exports.list_book_best_rate = (req, res) => {
 
         database.query(query_string, (err, rows, fields) => {
             if (!err) {
+                rows.map(e => {
+                    e.author = e.author.split(';').join(', ');
+                    return e;
+                });
                 res.status(200).json(rows);
             } else {
                 console.dir(err);
