@@ -1,8 +1,8 @@
 const mysql = require('mysql');
 const config = require('../helpers/config');
 
-//const mysqlConnection = mysql.createConnection(config.sqlDevDB);
-const mysqlConnection = mysql.createConnection(config.sqlClearDB);
+const mysqlConnection = mysql.createConnection(config.sqlDevDB);
+//const mysqlConnection = mysql.createConnection(config.sqlClearDB);
 
 mysqlConnection.connect(function (err) {
     if (err) {
