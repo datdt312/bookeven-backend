@@ -21,7 +21,7 @@ exports.get_cart_data = (req, res) => {
         database.query(query_string, (err, rows, fields) => {
             if (!err) {
                 rows.map(e => {
-                    e.author = e.author.replace(';', ", ");
+                    e.author = e.author.split(';').join(', ');
                     return e;
                 });
                 res.status(200).json(rows);

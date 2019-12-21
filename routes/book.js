@@ -14,6 +14,8 @@ router.delete('/delete', authController.isAuthenticated, booksController.delete_
 router.post('/list', booksController.list_book_by_field);
 router.post('/newest', booksController.list_book_newest);
 router.post('/bestRate', booksController.list_book_best_rate);
+router.post('/bestSeller', booksController.list_book_best_seller);
+router.post('/bestSales', booksController.list_book_best_sales);
 
 router.post('/filter', booksController.filter);
 
