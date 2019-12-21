@@ -101,14 +101,20 @@ exports.detail_get_user_info = function (result) {
 //detail services
 exports.detail_get_book_info = function (result) {
     return new Promise((resolve, reject) => {
-        database.query(`SELECT od.amount, b.price, b.name, b.discount 
+        database.query(`SELECT od.amount, b.price, b.name, b.discount, b.image 
                         FROM orderdetails od LEFT JOIN books b 
                         ON od.book_id = b.id 
                         WHERE od.order_id = ?;`,
             [result.id], (err, rows, fields) => {
+                
                 if (!err) {
-                    result.books = rows;
-                    resolve(result);
+                    if (rows.length > 0){
+                        result.books = rows;
+                        resolve(result);
+                    } else {
+                        result = {};
+                        resolve(result);
+                    }
                 } else {
                     return reject(err);
                 }

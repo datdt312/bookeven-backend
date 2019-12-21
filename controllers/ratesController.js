@@ -38,7 +38,8 @@ exports.list = (req, res) => {
 		var list = `SELECT u.fullname, rate from rates 
 					RIGHT JOIN users u ON rates.user_id = u.id
 					WHERE book_id = ${book_id}`
-		database.query(`${total};${rate1};${rate2};${rate3};${rate4};${rate5};${list}`,
+		var totalRate = `SELECT ROUND(AVG(rate), 1) AS rate FROM rates WHERE book_id = ${book_id} GROUP BY book_id`;
+		database.query(`${total};${rate1};${rate2};${rate3};${rate4};${rate5};${list};${totalRate}`,
 			(err, rows, fields) => {
 				if (!err) {
 					var rateList = rows[6];
@@ -51,13 +52,14 @@ exports.list = (req, res) => {
 
 					var ratesPercent = { r1, r2, r3, r4, r5 };
 
-					res.status(200).json({ rateList, ratesPercent });
+					var totalRate = rows[7][0].rate;
+
+					res.status(200).json({ rateList, ratesPercent, totalRate });
 				} else {
 					console.dir(err);
 					res.status(500).json({ message: "Đã có lỗi xảy ra" + err });
 				}
 			});
-
 	} catch (e) {
 		res.status(500).json({ message: "Đã có lỗi xảy ra", _error: e })
 	}
