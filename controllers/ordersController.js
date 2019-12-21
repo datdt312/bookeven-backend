@@ -6,30 +6,35 @@ const ordersHelper = require('../helpers/ordersHelper');
 //list
 exports.list = (req, res) => {
     try {
-        let order_id = req.body.order_id;
-        let orderDate = req.body.orderDate;
-        let total = req.body.total;
-        let shipDate = req.body.shipDate;
-        let status = req.body.status;
-        
-        ordersHelper.order_get_total(order_id)
-            .then(result => {
-                database.query(`SELECT id, created_date, ended_date, status from orders WHERE id = ?`, [order_id], (err, rows, fields) => {
-                    if (rows.length > 0) {
-                        res.status(200).json({
-                            "order_id": rows[0]['id'],
-                            "total": result,
-                            "orderDate": rows[0]['created_date'],
-                            "shipDate": rows[0]['ended_date'],
-                            "status": rows[0]['status']
-                        });
-                    }   
+        let id = req.headers.id;
+        database.query(`SELECT id, created_date, ended_date, status from orders WHERE user_id = ?;
+                        SELECT od.order_id, od.amount, b.price, b.discount 
+                        FROM orderdetails od LEFT JOIN books b 
+                        ON od.book_id = b.id`, [id], (err, rows, fields) => {
+            if (rows[0].length > 0) {
+                let getTotal = (id) => {
+                    total = rows[1].filter(row => {
+                        return row.order_id === id;
+                    }).reduce(function(acc, object) {
+                        return  acc + (object.price - ((object.discount*object.price)/100))*object.amount;}, 0)
+                    return total;
+                }
+                let result = [];
+                rows[0].map((row) => {
+                    result.push({
+                        order_id: row.id,
+                        total: getTotal(row.id),
+                        orderDate: row.created_date,
+                        shipDate: row.ended_date,
+                        status: row.status,
+                    })
                 })
-            })
-            .catch(e => {
-                res.status(202).json({message: "Không thực hiện được yêu cầu"});
-            });
-
+                res.status(200).json(result);
+            }
+            else {
+                res.status(200).json([]);
+            }
+        })
     } catch(e){
         res.status(500).json({message: "Đã có lỗi xảy ra", _error: e})
     }
