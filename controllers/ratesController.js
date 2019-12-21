@@ -52,7 +52,7 @@ exports.list = (req, res) => {
 
 					var ratesPercent = { r1, r2, r3, r4, r5 };
 
-					var totalRate = rows[7][0].rate;
+					var totalRate = (rows[7].length > 0) ? rows[7][0].rate : 0;
 
 					res.status(200).json({ rateList, ratesPercent, totalRate });
 				} else {
