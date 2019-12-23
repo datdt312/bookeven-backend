@@ -288,7 +288,7 @@ exports.list_book_newest = (req, res) => {
 exports.filter = (req, res) => {
     try {
         database.query(`SELECT b.id, b.name, b.author, b.price, b.image, b.discount, b.inventory,
-                        ROUND(AVG(r.rate), 1) AS rate, bf.name AS bookfield
+                        ROUND(AVG(r.rate), 1) AS rate, bf.id AS bookfield
                         FROM books b LEFT JOIN rates r ON r.book_id = b.id 
                         LEFT JOIN bookfields bf ON bf.id = b.bookfield_id
                         GROUP BY b.id;
