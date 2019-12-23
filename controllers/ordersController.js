@@ -7,10 +7,13 @@ const ordersHelper = require('../helpers/ordersHelper');
 exports.list = (req, res) => {
     try {
         let id = req.headers.id;
-        database.query(`SELECT id, created_date, ended_date, status from orders WHERE user_id = ?;
+        let role = req.body.role;
+        database.query(`SELECT o.id, u.id AS userid, u.fullname, u.phone, o.created_date, o.ended_date, o.status 
+                        FROM orders o, users u 
+                        WHERE o.user_id = u.id;
                         SELECT od.order_id, od.amount, b.price, b.discount 
                         FROM orderdetails od LEFT JOIN books b 
-                        ON od.book_id = b.id`, [id], (err, rows, fields) => {
+                        ON od.book_id = b.id`, (err, rows, fields) => {
             if (rows[0].length > 0) {
                 let getTotal = (id) => {
                     total = rows[1].filter(row => {
@@ -22,13 +25,23 @@ exports.list = (req, res) => {
                 let result = [];
                 rows[0].map((row) => {
                     result.push({
-                        order_id: row.id,
-                        total: getTotal(row.id),
-                        orderDate: row.created_date,
+                        id: row.id,
+                        userid: row.userid,
+                        fullName: row.fullname,
+                        phone: row.phone,
+                        createDate: row.created_date,
                         shipDate: row.ended_date,
                         status: row.status,
+                        total: getTotal(row.id),
                     })
                 })
+
+                if (parseInt(role) === 1){
+                    result = result.filter((r) => {
+                        return parseInt(r.userid) === parseInt(id);
+                    })
+                }
+
                 res.status(200).json(result);
             }
             else {
