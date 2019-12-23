@@ -75,7 +75,7 @@ exports.add_book_ver_hai_hai = (req, res) => {
         var book_id = req.body.book_id;
         var amount = req.body.amount;
 
-        database.query(`SELECT * FROM carts WHERE book_id = ?; SELECT inventory FROM books WHERE id = ?`, [book_id, book_id], (err, rows, fields) => {
+        database.query(`SELECT * FROM carts WHERE book_id = ? AND user_id = ?; SELECT inventory FROM books WHERE id = ?`, [book_id, user_id, book_id], (err, rows, fields) => {
             if (!err) {
                 if (rows[0].length > 0) {
                     var info = rows[0][0];
